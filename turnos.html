@@ -12,7 +12,7 @@
         .header-info h1 { font-size: 1.1rem; margin-bottom: 3px; }
         .header-info p { font-size: 0.8rem; color: #ccc; }
         .header-actions { display: flex; gap: 10px; }
-        .btn-entregar { background: var(--warning); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-entregar { background: var(--warning); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; display: none; } /* Oculto por defecto */
         
         .container { max-width: 100%; margin: 0 auto; padding: 10px; overflow-x: hidden;}
         .card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -20,9 +20,10 @@
         .fecha-hoy { font-weight: bold; color: #555; font-size: 0.95rem; }
         .dropdown-jornada { font-size: 0.9rem; font-weight: bold; color: var(--dark); border: none; background: transparent; outline: none; cursor: pointer; text-transform: uppercase; }
         
-        .btn-agendar-amarillo { background-color: #FFC107; color: #000; border: 2px solid #FFA000; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.95rem; display: block; margin: 0 auto 15px auto; transition: 0.2s;}
+        /* Botón amarillo ajustado para no ocupar todo el ancho */
+        .btn-agendar-amarillo { background-color: #FFC107; color: #000; border: 2px solid #FFA000; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.9rem; transition: 0.2s; margin: 0;}
         .btn-agendar-amarillo:active { transform: scale(0.98); }
-        .btn-volver-azul { background-color: #1976D2; color: #fff; border: 2px solid #0D47A1; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.95rem; display: block; margin: 0 auto 15px auto; transition: 0.2s;}
+        .btn-volver-azul { background-color: #1976D2; color: #fff; border: 2px solid #0D47A1; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.9rem; transition: 0.2s; margin: 0;}
         .btn-volver-azul:active { transform: scale(0.98); }
         
         .room-row { display: grid; grid-template-columns: 35px 1fr 90px; border: 1px solid var(--border); border-bottom: none; align-items: center; }
@@ -36,7 +37,7 @@
         .estado-disponible { background-color: #e8f5e9; color: #2e7d32; cursor: pointer; }
         .estado-neutro { background-color: #f5f5f5; color: #757575; }
 
-        .leyenda { display: flex; gap: 10px; font-size: 0.75rem; margin-top: 10px; justify-content: center; flex-wrap: wrap; background: #fafafa; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; width: 100%;}
+        .leyenda { display: flex; gap: 10px; font-size: 0.75rem; justify-content: center; flex-wrap: wrap; background: #fafafa; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; width: 100%; margin-bottom: 15px;}
         .leyenda span { display: flex; align-items: center; gap: 5px; color: #555;}
         .caja-color { width: 12px; height: 12px; border-radius: 3px; }
 
@@ -80,7 +81,8 @@
             <p id="lbl-jornada">Jornada</p>
         </div>
         <div class="header-actions">
-            <button class="btn-entregar" onclick="entregarCuarto()">Entregar Cuarto</button>
+            <!-- Botón de entregar cuarto oculto por defecto -->
+            <button class="btn-entregar" id="btn-entregar-header" onclick="entregarCuarto()">Entregar Cuarto</button>
         </div>
     </header>
 
@@ -100,19 +102,24 @@
 
         <!-- STATUS SEMANAL -->
         <div class="card">
-            <div class="card-header" style="justify-content: center; text-align: center; border-bottom: none;">
-                <h2 style="font-size: 1.3rem;">STATUS SEMANAL</h2>
-                <div class="leyenda">
-                    <span><div class="caja-color" style="background:var(--primary);"></div> Libre</span>
-                    <span><div class="caja-color" style="background:var(--purple);"></div> Ocupado</span>
-                    <span><div class="caja-color" style="background:var(--warning);"></div> Tu Turno</span>
-                    <span><div class="caja-color" style="background:var(--fijo);"></div> Fijo</span>
-                    <span><div class="caja-color" style="background:#9e9e9e;"></div> Espera</span>
-                </div>
+            <!-- Header con flexbox para alinear título y botón -->
+            <div class="card-header" style="justify-content: space-between; align-items: center; border-bottom: none;">
+                <h2 style="font-size: 1.25rem; margin: 0; color: #333;">
+                    STATUS SEMANAL 
+                    <span id="rango-fechas-semana" style="font-size: 1rem; color: #666; font-weight: normal; margin-left: 5px;"></span>
+                </h2>
+                <!-- BOTÓN INTELIGENTE (Oculto sábado 12 PM - domingo) -->
+                <button id="btn-toggle-semana" class="btn-agendar-amarillo" style="display:none;" onclick="toggleAgendamiento()">📅 AGENDAR PRÓXIMA SEMANA</button>
             </div>
-
-            <!-- BOTÓN INTELIGENTE (Oculto sábado 12 PM - domingo) -->
-            <button id="btn-toggle-semana" class="btn-agendar-amarillo" style="display:none;" onclick="toggleAgendamiento()">📅 AGENDAR PRÓXIMA SEMANA</button>
+            
+            <!-- La leyenda movida abajo del título y botón -->
+            <div class="leyenda">
+                <span><div class="caja-color" style="background:var(--primary);"></div> Libre</span>
+                <span><div class="caja-color" style="background:var(--purple);"></div> Ocupado</span>
+                <span><div class="caja-color" style="background:var(--warning);"></div> Tu Turno</span>
+                <span><div class="caja-color" style="background:var(--fijo);"></div> Fijo</span>
+                <span><div class="caja-color" style="background:#9e9e9e;"></div> Espera</span>
+            </div>
 
             <!-- SELECTOR CENTRAL -->
             <div id="contenedor-filtro-semana" style="text-align: center; margin-bottom: 15px;">
@@ -180,12 +187,17 @@
         const API_URL = "https://api-v03l.onrender.com";
         const modeloActual = localStorage.getItem('modelo_actual') || "";
         const baseJornadaActual = localStorage.getItem('jornada_actual') || "Mañana";
-        if (!modeloActual) window.location.href = "login.html"; 
+        if (!modeloActual) window.location.href = "https://paradise-go1a.onrender.com"; 
 
         document.getElementById('lbl-nombre').textContent = modeloActual;
         document.getElementById('lbl-jornada').textContent = `Jornada: ${baseJornadaActual}`;
 
-        function cerrarSesion() { localStorage.clear(); window.location.href = "login.html"; }
+        // Redirección corregida al salir
+        function cerrarSesion() { 
+            localStorage.clear(); 
+            window.location.href = "https://paradise-go1a.onrender.com"; 
+        }
+        
         function mostrarToast(msg) {
             const t = document.getElementById("toast-msg");
             t.textContent = msg; t.className = "show";
@@ -217,6 +229,33 @@
         let diasAusente1 = []; let diasAusente2 = [...nombreDias]; 
         let timerAutoSave = null; let viendoProximaSemana = false; let perfilInicializado = false;
 
+        // Función para calcular y mostrar el rango de fechas (DOM - SAB)
+        function actualizarRangoFechas() {
+            const formatearFecha = (d) => {
+                const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+                return `${String(d.getDate()).padStart(2, '0')}/${meses[d.getMonth()]}`;
+            };
+            
+            let fechaReferencia = new Date(hoy);
+            if (viendoProximaSemana) {
+                fechaReferencia.setDate(hoy.getDate() + 7);
+            }
+            
+            // Buscar el domingo de la semana actual/próxima
+            let diaSemana = fechaReferencia.getDay(); // 0 es Domingo
+            let inicioSemana = new Date(fechaReferencia);
+            inicioSemana.setDate(fechaReferencia.getDate() - diaSemana);
+            
+            // Buscar el sábado (+6 días)
+            let finSemana = new Date(inicioSemana);
+            finSemana.setDate(inicioSemana.getDate() + 6);
+            
+            document.getElementById('rango-fechas-semana').textContent = `${formatearFecha(inicioSemana)} - ${formatearFecha(finSemana)}`;
+        }
+        
+        // Llamada inicial para fijar las fechas
+        actualizarRangoFechas();
+
         function toggleAgendamiento() {
             viendoProximaSemana = !viendoProximaSemana;
             const btn = document.getElementById('btn-toggle-semana');
@@ -230,10 +269,11 @@
                 btn.textContent = "📅 AGENDAR PRÓXIMA SEMANA"; btn.classList.replace('btn-volver-azul', 'btn-agendar-amarillo');
                 contPre.style.display = 'none'; selCentral.style.display = 'block';
             }
+            
+            actualizarRangoFechas(); // Actualiza las fechas del título
             renderizarSemana();
         }
 
-        // El parametro desdeUsuario evita que se dispare el autoguardado solo por abrir la página
         function actualizarInterfazDobleTurno(desdeUsuario = false) {
             const isDoble = document.getElementById('chk-doble').checked;
             document.getElementById('div-sel-doble').style.display = isDoble ? 'block' : 'none';
@@ -301,6 +341,10 @@
                 const jC = await rC.json();
                 cuartosFisicos = Object.keys(jC.cuartos).map(k => ({ room: parseInt(k), nombre: jC.cuartos[k].nombre, estado: jC.cuartos[k].estado }));
 
+                // Controlar visibilidad del botón Entregar Cuarto
+                const tieneCuarto = cuartosFisicos.some(c => c.nombre === modeloActual && (c.estado === "DE SALIDA" || c.estado === "OCUPADA"));
+                document.getElementById('btn-entregar-header').style.display = tieneCuarto ? 'block' : 'none';
+
                 const rS = await fetch(`${API_URL}/api/semana?t=${new Date().getTime()}`, { cache: 'no-store' });
                 const jS = await rS.json();
                 datosSemanaActual = jS.semana_actual; datosProximaSemana = jS.proxima_semana;
@@ -311,7 +355,6 @@
                     const miPerfil = perfilesModelos[modeloActual] || {};
                     const miHistorial = seleccionesPrevias[modeloActual];
 
-                    // RESTAURAR LA MEMORIA VISUAL DE FIREBASE
                     if (miHistorial) {
                         jorPre1 = miHistorial.jor1 || baseJornadaActual;
                         diasAusente1 = miHistorial.ausentes1 || [];
@@ -326,7 +369,6 @@
                         diasAusente1 = []; diasAusente2 = [...nombreDias];
                     }
 
-                    // PERFIL DE DOBLE TURNO OBLIGATORIO
                     if (miPerfil.doble_jornada === true) {
                         document.getElementById('chk-doble').checked = true; document.getElementById('chk-doble').disabled = true;
                         document.getElementById('lbl-opcional-doble').style.display = 'none'; document.getElementById('lbl-obligatorio-doble').style.display = 'inline';
