@@ -255,7 +255,6 @@
                 btn.textContent = "⬅️ VOLVER A SEMANA ACTUAL"; btn.classList.replace('btn-agendar-amarillo', 'btn-volver-azul');
                 contPre.style.display = 'block'; selCentral.style.display = 'none'; 
                 
-                // GUARDADO INMEDIATO: Registra la disponibilidad por defecto apenas abre el panel
                 triggerAutoSave();
             } else {
                 btn.textContent = "📅 AGENDAR PRÓXIMA SEMANA"; btn.classList.replace('btn-volver-azul', 'btn-agendar-amarillo');
@@ -456,15 +455,32 @@
         function renderizarSemana() {
             const maestro = document.getElementById('contenedor-grillas-maestro'); maestro.innerHTML = '';
             
-            if (viendoProximaSemana && document.getElementById('chk-doble').checked) {
-                maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Jornada Principal: ${jorPre1}</h3>`;
-                maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre1, "proxima");
-                maestro.innerHTML += `<h3 style="margin-top:25px; color:#c62828;">👉 Jornada Secundaria: ${jorPre2}</h3>`;
-                maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre2, "proxima");
+            let miPerfil = perfilesModelos[modeloActual] || {};
+            let perfilJor = miPerfil.jornada || baseJornadaActual;
+
+            if (viendoProximaSemana) {
+                // LÓGICA ESPECIAL PARA SATELITES (Muestra el status room completo)
+                if (perfilJor === "Satelites") {
+                    maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Status Próxima Semana: MAÑANA</h3>`;
+                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, "Mañana", "proxima");
+                    maestro.innerHTML += `<h3 style="margin-top:25px; color:#333;">👉 Status Próxima Semana: TARDE</h3>`;
+                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, "Tarde", "proxima");
+                    maestro.innerHTML += `<h3 style="margin-top:25px; color:#333;">👉 Status Próxima Semana: NOCHE</h3>`;
+                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, "Noche", "proxima");
+                } 
+                else if (document.getElementById('chk-doble').checked) {
+                    maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Jornada Principal: ${jorPre1}</h3>`;
+                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre1, "proxima");
+                    maestro.innerHTML += `<h3 style="margin-top:25px; color:#c62828;">👉 Jornada Secundaria: ${jorPre2}</h3>`;
+                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre2, "proxima");
+                } else {
+                    maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Jornada Principal: ${jorPre1}</h3>`;
+                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre1, "proxima");
+                }
             } else {
-                let bdViendo = viendoProximaSemana ? datosProximaSemana : datosSemanaActual;
-                let jorSeleccionada = viendoProximaSemana ? jorPre1 : document.getElementById('sel-jornada-semana').value;
-                maestro.innerHTML += generarHtmlGrilla(bdViendo, jorSeleccionada, viendoProximaSemana ? "proxima" : "actual");
+                let bdViendo = datosSemanaActual;
+                let jorSeleccionada = document.getElementById('sel-jornada-semana').value;
+                maestro.innerHTML += generarHtmlGrilla(bdViendo, jorSeleccionada, "actual");
             }
         }
 
