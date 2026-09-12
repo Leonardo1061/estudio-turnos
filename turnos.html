@@ -12,7 +12,7 @@
         .header-info h1 { font-size: 1.1rem; margin-bottom: 3px; }
         .header-info p { font-size: 0.8rem; color: #ccc; }
         .header-actions { display: flex; gap: 10px; }
-        .btn-entregar { background: var(--warning); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; display: none; } /* Oculto por defecto */
+        .btn-entregar { background: var(--warning); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; display: none; }
         
         .container { max-width: 100%; margin: 0 auto; padding: 10px; overflow-x: hidden;}
         .card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -20,7 +20,6 @@
         .fecha-hoy { font-weight: bold; color: #555; font-size: 0.95rem; }
         .dropdown-jornada { font-size: 0.9rem; font-weight: bold; color: var(--dark); border: none; background: transparent; outline: none; cursor: pointer; text-transform: uppercase; }
         
-        /* Botón amarillo ajustado para no ocupar todo el ancho */
         .btn-agendar-amarillo { background-color: #FFC107; color: #000; border: 2px solid #FFA000; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.9rem; transition: 0.2s; margin: 0;}
         .btn-agendar-amarillo:active { transform: scale(0.98); }
         .btn-volver-azul { background-color: #1976D2; color: #fff; border: 2px solid #0D47A1; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.9rem; transition: 0.2s; margin: 0;}
@@ -81,7 +80,6 @@
             <p id="lbl-jornada">Jornada</p>
         </div>
         <div class="header-actions">
-            <!-- Botón de entregar cuarto oculto por defecto -->
             <button class="btn-entregar" id="btn-entregar-header" onclick="entregarCuarto()">Entregar Cuarto</button>
         </div>
     </header>
@@ -102,17 +100,14 @@
 
         <!-- STATUS SEMANAL -->
         <div class="card">
-            <!-- Header con flexbox para alinear título y botón -->
             <div class="card-header" style="justify-content: space-between; align-items: center; border-bottom: none;">
                 <h2 style="font-size: 1.25rem; margin: 0; color: #333;">
                     STATUS SEMANAL 
                     <span id="rango-fechas-semana" style="font-size: 1rem; color: #666; font-weight: normal; margin-left: 5px;"></span>
                 </h2>
-                <!-- BOTÓN INTELIGENTE (Oculto sábado 12 PM - domingo) -->
                 <button id="btn-toggle-semana" class="btn-agendar-amarillo" style="display:none;" onclick="toggleAgendamiento()">📅 AGENDAR PRÓXIMA SEMANA</button>
             </div>
             
-            <!-- La leyenda movida abajo del título y botón -->
             <div class="leyenda">
                 <span><div class="caja-color" style="background:var(--primary);"></div> Libre</span>
                 <span><div class="caja-color" style="background:var(--purple);"></div> Ocupado</span>
@@ -148,7 +143,6 @@
                     </select>
                 </div>
                 
-                <!-- ALERTA LISTA ESPERA -->
                 <div id="alerta-lista-espera" class="alerta-espera"></div>
 
                 <h4 id="lbl-jor-1" style="color:#333; margin-bottom:8px;">Jornada Principal: </h4>
@@ -192,7 +186,6 @@
         document.getElementById('lbl-nombre').textContent = modeloActual;
         document.getElementById('lbl-jornada').textContent = `Jornada: ${baseJornadaActual}`;
 
-        // Redirección corregida al salir
         function cerrarSesion() { 
             localStorage.clear(); 
             window.location.href = "https://paradise-go1a.onrender.com"; 
@@ -229,7 +222,6 @@
         let diasAusente1 = []; let diasAusente2 = [...nombreDias]; 
         let timerAutoSave = null; let viendoProximaSemana = false; let perfilInicializado = false;
 
-        // Función para calcular y mostrar el rango de fechas (DOM - SAB)
         function actualizarRangoFechas() {
             const formatearFecha = (d) => {
                 const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
@@ -241,19 +233,16 @@
                 fechaReferencia.setDate(hoy.getDate() + 7);
             }
             
-            // Buscar el domingo de la semana actual/próxima
-            let diaSemana = fechaReferencia.getDay(); // 0 es Domingo
+            let diaSemana = fechaReferencia.getDay();
             let inicioSemana = new Date(fechaReferencia);
             inicioSemana.setDate(fechaReferencia.getDate() - diaSemana);
             
-            // Buscar el sábado (+6 días)
             let finSemana = new Date(inicioSemana);
             finSemana.setDate(inicioSemana.getDate() + 6);
             
             document.getElementById('rango-fechas-semana').textContent = `${formatearFecha(inicioSemana)} - ${formatearFecha(finSemana)}`;
         }
         
-        // Llamada inicial para fijar las fechas
         actualizarRangoFechas();
 
         function toggleAgendamiento() {
@@ -265,12 +254,15 @@
             if(viendoProximaSemana) {
                 btn.textContent = "⬅️ VOLVER A SEMANA ACTUAL"; btn.classList.replace('btn-agendar-amarillo', 'btn-volver-azul');
                 contPre.style.display = 'block'; selCentral.style.display = 'none'; 
+                
+                // GUARDADO INMEDIATO: Registra la disponibilidad por defecto apenas abre el panel
+                triggerAutoSave();
             } else {
                 btn.textContent = "📅 AGENDAR PRÓXIMA SEMANA"; btn.classList.replace('btn-volver-azul', 'btn-agendar-amarillo');
                 contPre.style.display = 'none'; selCentral.style.display = 'block';
             }
             
-            actualizarRangoFechas(); // Actualiza las fechas del título
+            actualizarRangoFechas(); 
             renderizarSemana();
         }
 
@@ -341,7 +333,6 @@
                 const jC = await rC.json();
                 cuartosFisicos = Object.keys(jC.cuartos).map(k => ({ room: parseInt(k), nombre: jC.cuartos[k].nombre, estado: jC.cuartos[k].estado }));
 
-                // Controlar visibilidad del botón Entregar Cuarto
                 const tieneCuarto = cuartosFisicos.some(c => c.nombre === modeloActual && (c.estado === "DE SALIDA" || c.estado === "OCUPADA"));
                 document.getElementById('btn-entregar-header').style.display = tieneCuarto ? 'block' : 'none';
 
