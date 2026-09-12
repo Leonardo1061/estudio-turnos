@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Turnos</title>
+    <style>
+        :root { --primary: #4CAF50; --danger: #F44336; --warning: #FF9800; --purple: #9c27b0; --info: #1976D2; --fijo: #03A9F4; --dark: #212121; --bg-body: #f4f6f9; --card-bg: #ffffff; --border: #e0e0e0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
+        body { background-color: var(--bg-body); color: #333; padding-bottom: 30px; }
+        header { background-color: var(--dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .header-info h1 { font-size: 1.1rem; margin-bottom: 3px; }
+        .header-info p { font-size: 0.8rem; color: #ccc; }
+        .header-actions { display: flex; gap: 10px; }
+        .btn-entregar { background: var(--warning); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        .container { max-width: 100%; margin: 0 auto; padding: 10px; overflow-x: hidden;}
+        .card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg-body); padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
+        .fecha-hoy { font-weight: bold; color: #555; font-size: 0.95rem; }
+        .dropdown-jornada { font-size: 0.9rem; font-weight: bold; color: var(--dark); border: none; background: transparent; outline: none; cursor: pointer; text-transform: uppercase; }
+        
+        .btn-agendar-amarillo { background-color: #FFC107; color: #000; border: 2px solid #FFA000; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.95rem; display: block; margin: 0 auto 15px auto; transition: 0.2s;}
+        .btn-agendar-amarillo:active { transform: scale(0.98); }
+        .btn-volver-azul { background-color: #1976D2; color: #fff; border: 2px solid #0D47A1; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.95rem; display: block; margin: 0 auto 15px auto; transition: 0.2s;}
+        .btn-volver-azul:active { transform: scale(0.98); }
+        
+        .room-row { display: grid; grid-template-columns: 35px 1fr 90px; border: 1px solid var(--border); border-bottom: none; align-items: center; }
+        .room-row:last-child { border-bottom: 1px solid var(--border); }
+        .room-row > div { padding: 10px 5px; text-align: center; font-size: 0.85rem; border-right: 1px solid var(--border); }
+        .r-num { font-weight: bold; background-color: #fafafa; }
+        .r-name { text-align: left !important; text-transform: uppercase; font-weight: bold; color: #444; }
+        .r-state { font-weight: bold; font-size: 0.75rem; }
+        .estado-ocupada { background-color: #ffebee; color: #c62828; }
+        .estado-salida { background-color: #fff8e1; color: #f57f17; }
+        .estado-disponible { background-color: #e8f5e9; color: #2e7d32; cursor: pointer; }
+        .estado-neutro { background-color: #f5f5f5; color: #757575; }
+
+        .leyenda { display: flex; gap: 10px; font-size: 0.75rem; margin-top: 10px; justify-content: center; flex-wrap: wrap; background: #fafafa; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; width: 100%;}
+        .leyenda span { display: flex; align-items: center; gap: 5px; color: #555;}
+        .caja-color { width: 12px; height: 12px; border-radius: 3px; }
+
+        #pre-agendamiento-container { background-color: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffb74d; }
+        .grid-dias { display: grid; grid-template-columns: repeat(auto-fit, minmax(75px, 1fr)); gap: 8px; margin-bottom: 15px; }
+        .dia-btn { padding: 10px 5px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: 0.2s; user-select: none; }
+        .dia-asiste { background-color: #e8f5e9; color: #2e7d32; border: 2px solid #4CAF50; }
+        .dia-falta { background-color: #ffebee; color: #c62828; border: 2px dashed #F44336; }
+        .chk-container { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-weight: bold; color: #e65100; cursor: pointer;}
+        
+        .semana-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; }
+        .dia-columna { min-width: 150px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background-color: #fafafa; }
+        .dia-titulo { background-color: #3f51b5; color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 0.9rem; }
+        .turno-bloque { padding: 8px 5px; border-bottom: 1px solid var(--border); font-size: 0.75rem; text-align: center; color: white; font-weight: bold; line-height: 1.2; transition: all 0.2s; }
+        
+        .bg-purple { background-color: var(--purple); }
+        .bg-green { background-color: var(--primary); cursor: pointer; }
+        .bg-mine { background-color: var(--warning); cursor: pointer; border: 2px solid #E65100; box-shadow: inset 0 0 5px rgba(0,0,0,0.3);}
+        .bg-fijo { background-color: var(--fijo); border: 2px solid #0288D1; cursor: pointer; box-shadow: inset 0 0 5px rgba(0,0,0,0.2);}
+        .bg-neutro { background-color: #9e9e9e; color: white; border: 2px solid #757575;}
+        
+        .alerta-espera { background: #fffde7; border-left: 4px solid #fbc02d; padding: 10px; font-size: 0.85rem; color: #555; margin-bottom: 15px; display: none;}
+
+        .btn-logout-bottom { width: 100%; background-color: var(--danger); color: white; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 15px; }
+        #toast-msg { visibility: hidden; min-width: 250px; background-color: #4CAF50; color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; opacity: 0; transition: opacity 0.4s, bottom 0.4s; }
+        #toast-msg.show { visibility: visible; opacity: 1; bottom: 50px; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; }
+        .btn-modal-liberar { background: var(--danger); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer;}
+        .btn-modal-cancelar { background: #e0e0e0; color: #333; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer;}
+    </style>
+</head>
+<body>
+
+    <div id="toast-msg">Guardado</div>
+
+    <header>
+        <div class="header-info">
+            <h1 id="lbl-nombre">Cargando...</h1>
+            <p id="lbl-jornada">Jornada</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-entregar" onclick="entregarCuarto()">Entregar Cuarto</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- TABLA DEL DÍA -->
+        <div class="card">
+            <div class="card-header">
+                <span class="fecha-hoy" id="fecha-actual">Cargando...</span>
+                <select id="filtro-jornada-hoy" class="dropdown-jornada" onchange="renderizarCuartosHoy()">
+                    <option value="Mañana">ROOM MAÑANA (7 AM - 1 PM)</option>
+                    <option value="Tarde">ROOM TARDE (1 PM - 8 PM)</option>
+                    <option value="Noche">ROOM NOCHE (8 PM - 7 AM)</option>
+                </select>
+            </div>
+            <div id="tabla-rooms"><p style="text-align: center;">Conectando...</p></div>
+        </div>
+
+        <!-- STATUS SEMANAL -->
+        <div class="card">
+            <div class="card-header" style="justify-content: center; text-align: center; border-bottom: none;">
+                <h2 style="font-size: 1.3rem;">STATUS SEMANAL</h2>
+                <div class="leyenda">
+                    <span><div class="caja-color" style="background:var(--primary);"></div> Libre</span>
+                    <span><div class="caja-color" style="background:var(--purple);"></div> Ocupado</span>
+                    <span><div class="caja-color" style="background:var(--warning);"></div> Tu Turno</span>
+                    <span><div class="caja-color" style="background:var(--fijo);"></div> Fijo</span>
+                    <span><div class="caja-color" style="background:#9e9e9e;"></div> Espera</span>
+                </div>
+            </div>
+
+            <!-- BOTÓN INTELIGENTE (Oculto sábado 12 PM - domingo) -->
+            <button id="btn-toggle-semana" class="btn-agendar-amarillo" style="display:none;" onclick="toggleAgendamiento()">📅 AGENDAR PRÓXIMA SEMANA</button>
+
+            <!-- SELECTOR CENTRAL -->
+            <div id="contenedor-filtro-semana" style="text-align: center; margin-bottom: 15px;">
+                <select id="sel-jornada-semana" class="dropdown-jornada" style="background: var(--info); color: white; padding: 8px 15px; border-radius: 6px; display: inline-block;" onchange="renderizarSemana()">
+                    <option value="Mañana">☀️ MOSTRANDO JORNADA: MAÑANA ▼</option>
+                    <option value="Tarde">🌇 MOSTRANDO JORNADA: TARDE ▼</option>
+                    <option value="Noche">🌙 MOSTRANDO JORNADA: NOCHE ▼</option>
+                </select>
+            </div>
+
+            <!-- PANEL PRE-AGENDAMIENTO -->
+            <div id="pre-agendamiento-container" style="display: none;">
+                <h3 style="color: #e65100; margin-bottom: 5px;">📅 Programación Próxima Semana</h3>
+                
+                <label class="chk-container">
+                    <input type="checkbox" id="chk-doble" onclick="actualizarInterfazDobleTurno(true)"> 
+                    <span id="lbl-opcional-doble">¿Harás Doble Turno extra?</span>
+                    <span id="lbl-obligatorio-doble" style="display:none; color: #d32f2f;">Doble Jornada (Obligatorio)</span>
+                </label>
+
+                <div id="div-sel-doble" style="display:none; margin-bottom:15px;">
+                    <select id="sel-tipo-doble" style="padding: 10px; width: 100%;" onchange="actualizarInterfazDobleTurno(true)">
+                        <option value="Mañana-Tarde">MAÑANA - TARDE</option>
+                        <option value="Tarde-Noche">TARDE - NOCHE</option>
+                        <option value="Noche-Mañana">NOCHE - MAÑANA</option>
+                    </select>
+                </div>
+                
+                <!-- ALERTA LISTA ESPERA -->
+                <div id="alerta-lista-espera" class="alerta-espera"></div>
+
+                <h4 id="lbl-jor-1" style="color:#333; margin-bottom:8px;">Jornada Principal: </h4>
+                <div id="grid-dias-1" class="grid-dias"></div>
+
+                <div id="contenedor-jor-2" style="display:none; background: #ffebee; padding: 10px; border-radius: 8px; border: 1px solid #ffcdd2;">
+                    <h4 id="lbl-jor-2" style="color:#c62828; margin-bottom:3px;">Jornada Secundaria: </h4>
+                    <p style="font-size: 0.75rem; color: #d32f2f; margin-bottom: 10px; font-weight: bold;">⚠️ Por defecto estás AUSENTE. Toca los días que SÍ vas a venir.</p>
+                    <div id="grid-dias-2" class="grid-dias"></div>
+                </div>
+
+                <div id="caja-motivo" style="display: none; margin-bottom: 5px; margin-top: 15px;">
+                    <textarea id="pre-motivo" style="width: 100%; padding: 10px;" placeholder="Motivo de tus faltas..." rows="2" oninput="triggerAutoSave()"></textarea>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR MAESTRO DE GRILLAS -->
+            <div id="contenedor-grillas-maestro"></div>
+            
+            <button class="btn-logout-bottom" onclick="cerrarSesion()">🚪 SALIR</button>
+        </div>
+    </div>
+
+    <!-- MODAL LIBERACIÓN -->
+    <div class="modal-overlay" id="modal-liberar">
+        <div class="modal-content">
+            <h3>⚠️ Liberar Turno</h3>
+            <p id="texto-turno-liberar"></p>
+            <textarea id="motivo-liberacion" style="width:100%; padding:10px; margin-bottom:15px;" placeholder="Motivo (Obligatorio)" rows="2"></textarea>
+            <button class="btn-modal-liberar" id="btn-confirmar-liberar" onclick="confirmarLiberacion()">Liberar y Enviar</button>
+            <button class="btn-modal-cancelar" onclick="cerrarModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://api-v03l.onrender.com";
+        const modeloActual = localStorage.getItem('modelo_actual') || "";
+        const baseJornadaActual = localStorage.getItem('jornada_actual') || "Mañana";
+        if (!modeloActual) window.location.href = "login.html"; 
+
+        document.getElementById('lbl-nombre').textContent = modeloActual;
+        document.getElementById('lbl-jornada').textContent = `Jornada: ${baseJornadaActual}`;
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = "login.html"; }
+        function mostrarToast(msg) {
+            const t = document.getElementById("toast-msg");
+            t.textContent = msg; t.className = "show";
+            setTimeout(() => { t.className = t.className.replace("show", "").trim(); }, 2000);
+        }
+
+        const hoy = new Date();
+        document.getElementById('fecha-actual').textContent = hoy.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        
+        let diaIso = hoy.getDay(); if (diaIso === 0) diaIso = 7; 
+        const horaH = hoy.getHours();
+        
+        let jornadaDetectada = "Noche";
+        if (horaH >= 7 && horaH < 13) jornadaDetectada = "Mañana";
+        else if (horaH >= 13 && horaH < 20) jornadaDetectada = "Tarde";
+        document.getElementById('filtro-jornada-hoy').value = jornadaDetectada;
+        document.getElementById('sel-jornada-semana').value = jornadaDetectada;
+
+        const esFaseAbierta = (diaIso === 4) || (diaIso === 5) || (diaIso === 6 && horaH < 12);
+        if (esFaseAbierta) document.getElementById('btn-toggle-semana').style.display = 'block';
+
+        let cuartosFisicos = [];
+        let datosSemanaActual = {}; let datosProximaSemana = {}; 
+        let perfilesModelos = {}; let faltantesGlobales = {}; let seleccionesPrevias = {};
+        const nombreDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const nombreDiaHoy = nombreDias[hoy.getDay()];
+        
+        let jorPre1 = baseJornadaActual; let jorPre2 = "";
+        let diasAusente1 = []; let diasAusente2 = [...nombreDias]; 
+        let timerAutoSave = null; let viendoProximaSemana = false; let perfilInicializado = false;
+
+        function toggleAgendamiento() {
+            viendoProximaSemana = !viendoProximaSemana;
+            const btn = document.getElementById('btn-toggle-semana');
+            const contPre = document.getElementById('pre-agendamiento-container');
+            const selCentral = document.getElementById('contenedor-filtro-semana');
+            
+            if(viendoProximaSemana) {
+                btn.textContent = "⬅️ VOLVER A SEMANA ACTUAL"; btn.classList.replace('btn-agendar-amarillo', 'btn-volver-azul');
+                contPre.style.display = 'block'; selCentral.style.display = 'none'; 
+            } else {
+                btn.textContent = "📅 AGENDAR PRÓXIMA SEMANA"; btn.classList.replace('btn-volver-azul', 'btn-agendar-amarillo');
+                contPre.style.display = 'none'; selCentral.style.display = 'block';
+            }
+            renderizarSemana();
+        }
+
+        // El parametro desdeUsuario evita que se dispare el autoguardado solo por abrir la página
+        function actualizarInterfazDobleTurno(desdeUsuario = false) {
+            const isDoble = document.getElementById('chk-doble').checked;
+            document.getElementById('div-sel-doble').style.display = isDoble ? 'block' : 'none';
+            document.getElementById('contenedor-jor-2').style.display = isDoble ? 'block' : 'none';
+            
+            const miPerfil = perfilesModelos[modeloActual] || {};
+            
+            if(isDoble) {
+                const partes = document.getElementById('sel-tipo-doble').value.split('-');
+                jorPre1 = partes[0]; jorPre2 = partes[1];
+                
+                if (!miPerfil.doble_jornada) {
+                    const cant = faltantesGlobales[jorPre2] || 0;
+                    document.getElementById('alerta-lista-espera').innerHTML = `⚠️ <b>Lista de Espera:</b> Aún faltan <b>${cant} cupos</b> por programar en la <b>${jorPre2}</b>. Quedarás en <span style="color:#9e9e9e; font-weight:bold;">Gris/Neutro</span>. El sábado después de las 12 PM sabrás si quedaste.`;
+                    document.getElementById('alerta-lista-espera').style.display = 'block';
+                } else {
+                    document.getElementById('alerta-lista-espera').style.display = 'none';
+                }
+            } else {
+                jorPre1 = miPerfil.jornada || baseJornadaActual; jorPre2 = ""; 
+                if(desdeUsuario) diasAusente2 = [...nombreDias]; 
+                document.getElementById('alerta-lista-espera').style.display = 'none';
+            }
+            
+            document.getElementById('lbl-jor-1').textContent = `Jornada Principal (${jorPre1}):`;
+            document.getElementById('lbl-jor-2').textContent = `Jornada Secundaria (${jorPre2}):`;
+            
+            renderizarDiasPreAgendamiento(); 
+            if(desdeUsuario) triggerAutoSave(); 
+            renderizarSemana();
+        }
+
+        function renderizarDiasPreAgendamiento() {
+            const c1 = document.getElementById('grid-dias-1'); c1.innerHTML = '';
+            const c2 = document.getElementById('grid-dias-2'); c2.innerHTML = '';
+            
+            nombreDias.forEach(dia => {
+                const asis1 = !diasAusente1.includes(dia);
+                c1.innerHTML += `<div class="dia-btn ${asis1 ? 'dia-asiste' : 'dia-falta'}" onclick="toggleDia(1, '${dia}')">${dia}<br><small>${asis1 ? 'ASISTIRÁ' : 'AUSENTE'}</small></div>`;
+                if(document.getElementById('chk-doble').checked) {
+                    const asis2 = !diasAusente2.includes(dia);
+                    c2.innerHTML += `<div class="dia-btn ${asis2 ? 'dia-asiste' : 'dia-falta'}" onclick="toggleDia(2, '${dia}')">${dia}<br><small>${asis2 ? 'ASISTIRÁ' : 'AUSENTE'}</small></div>`;
+                }
+            });
+            document.getElementById('caja-motivo').style.display = diasAusente1.length > 1 ? 'block' : 'none';
+        }
+        
+        function toggleDia(jornadaNum, dia) {
+            let lista = jornadaNum === 1 ? diasAusente1 : diasAusente2;
+            if (lista.includes(dia)) lista.splice(lista.indexOf(dia), 1); else lista.push(dia);
+            renderizarDiasPreAgendamiento(); triggerAutoSave();
+        }
+
+        function triggerAutoSave() {
+            if(!perfilInicializado) return;
+            clearTimeout(timerAutoSave);
+            timerAutoSave = setTimeout(async () => {
+                await enviarPreAgendamiento(); await cargarDatos();
+            }, 500); 
+        }
+
+        async function cargarDatos() {
+            try {
+                const rC = await fetch(`${API_URL}/api/cuartos?t=${new Date().getTime()}`, { cache: 'no-store' });
+                const jC = await rC.json();
+                cuartosFisicos = Object.keys(jC.cuartos).map(k => ({ room: parseInt(k), nombre: jC.cuartos[k].nombre, estado: jC.cuartos[k].estado }));
+
+                const rS = await fetch(`${API_URL}/api/semana?t=${new Date().getTime()}`, { cache: 'no-store' });
+                const jS = await rS.json();
+                datosSemanaActual = jS.semana_actual; datosProximaSemana = jS.proxima_semana;
+                perfilesModelos = jS.perfiles || {}; faltantesGlobales = jS.faltantes || {};
+                seleccionesPrevias = jS.selecciones_previas || {};
+
+                if (!perfilInicializado) {
+                    const miPerfil = perfilesModelos[modeloActual] || {};
+                    const miHistorial = seleccionesPrevias[modeloActual];
+
+                    // RESTAURAR LA MEMORIA VISUAL DE FIREBASE
+                    if (miHistorial) {
+                        jorPre1 = miHistorial.jor1 || baseJornadaActual;
+                        diasAusente1 = miHistorial.ausentes1 || [];
+                        if (miHistorial.es_doble) {
+                            document.getElementById('chk-doble').checked = true;
+                            jorPre2 = miHistorial.jor2 || "";
+                            diasAusente2 = miHistorial.ausentes2 || [];
+                            if (jorPre1 && jorPre2) document.getElementById('sel-tipo-doble').value = `${jorPre1}-${jorPre2}`;
+                        }
+                    } else {
+                        jorPre1 = miPerfil.jornada || baseJornadaActual;
+                        diasAusente1 = []; diasAusente2 = [...nombreDias];
+                    }
+
+                    // PERFIL DE DOBLE TURNO OBLIGATORIO
+                    if (miPerfil.doble_jornada === true) {
+                        document.getElementById('chk-doble').checked = true; document.getElementById('chk-doble').disabled = true;
+                        document.getElementById('lbl-opcional-doble').style.display = 'none'; document.getElementById('lbl-obligatorio-doble').style.display = 'inline';
+                    }
+                    
+                    actualizarInterfazDobleTurno(false);
+                    perfilInicializado = true;
+                }
+                
+                renderizarCuartosHoy(); renderizarSemana();
+            } catch (e) { console.error("Error conectando."); }
+        }
+
+        async function enviarPreAgendamiento() {
+            if(!esFaseAbierta) return mostrarToast("Fase Cerrada");
+            const isDoble = document.getElementById('chk-doble').checked;
+            await fetch(`${API_URL}/api/semana/pre_agendar`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: modeloActual, jornada: jorPre1, dias_ausente: diasAusente1, es_doble: isDoble, jornada_2: jorPre2, dias_ausente_2: diasAusente2, motivo: document.getElementById('pre-motivo').value })
+            });
+            mostrarToast("💾 Auto-guardado");
+        }
+
+        function renderizarCuartosHoy() {
+            const jorSel = document.getElementById('filtro-jornada-hoy').value;
+            const cont = document.getElementById('tabla-rooms'); cont.innerHTML = '';
+            if (jorSel === jornadaDetectada) {
+                cuartosFisicos.forEach(c => {
+                    let clase = c.estado === "OCUPADA" ? "estado-ocupada" : (c.estado === "DE SALIDA" ? "estado-salida" : "estado-disponible");
+                    let click = c.estado === "DISPONIBLE" ? `onclick="tomarTurnoHoy(${c.room}, '${jorSel}')"` : "";
+                    cont.innerHTML += `<div class="room-row"><div class="r-num">${c.room}</div><div class="r-name">${c.nombre}</div><div class="r-state ${clase}" ${click}>${c.estado === "DISPONIBLE" ? "✋ TOMAR" : c.estado}</div></div>`;
+                });
+            } else {
+                for (let i = 1; i <= 12; i++) {
+                    let nom = datosSemanaActual[nombreDiaHoy]?.[jorSel]?.[i.toString()] || "";
+                    cont.innerHTML += `<div class="room-row"><div class="r-num">${i}</div><div class="r-name" style="color: ${nom ? '#444' : '#999'}">${nom || "---"}</div><div class="r-state ${nom ? "estado-ocupada" : "estado-neutro"}">${nom ? "PROGRAMADA" : "CUPO"}</div></div>`;
+                }
+            }
+        }
+
+        async function entregarCuarto() {
+            let c = cuartosFisicos.find(c => c.nombre === modeloActual && (c.estado === "DE SALIDA" || c.estado === "OCUPADA"));
+            if (!c) return alert("No tienes cuartos a tu nombre aquí.");
+            await fetch(`${API_URL}/api/cuartos/actualizar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room: c.room, nombre: "", estado: "DISPONIBLE", jornada: document.getElementById('filtro-jornada-hoy').value }) });
+            cargarDatos(); 
+        }
+
+        async function tomarTurnoHoy(room, jornada) {
+            if(confirm(`¿Tomar la Room ${room} para HOY mismo?`)) {
+                await fetch(`${API_URL}/api/cuartos/actualizar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room: room, nombre: modeloActual, estado: "OCUPADA", jornada: jornada }) });
+                cargarDatos();
+            }
+        }
+
+        function generarHtmlGrilla(bd, jornada, modoVista) {
+            let html = '<div class="semana-scroll">';
+            nombreDias.forEach(dia => {
+                html += `<div class="dia-columna"><div class="dia-titulo">${dia}</div>`;
+                for(let i=1; i<=12; i++) {
+                    let raw = bd[dia]?.[jornada]?.[i.toString()] || "";
+                    let ocupante = raw.split("::")[0];
+                    let esPendiente = raw.includes("::PENDIENTE");
+                    
+                    let p = perfilesModelos[ocupante] || {};
+                    let esFija = p.cuarto_fijo == i;
+                    let txtFijo = esFija ? `R${i}: ` : "";
+
+                    if (ocupante === modeloActual) {
+                        if (esPendiente && esFaseAbierta && modoVista === "proxima") {
+                            html += `<div class="turno-bloque bg-neutro">TÚ (Espera)</div>`;
+                        } else if (esFija) {
+                            html += `<div class="turno-bloque bg-fijo" onclick="abrirModalLiberar('${dia}', '${jornada}', ${i})">${txtFijo}TÚ (FIJA)</div>`;
+                        } else {
+                            html += `<div class="turno-bloque bg-mine" onclick="abrirModalLiberar('${dia}', '${jornada}', ${i})">TÚ (Confirmada)</div>`;
+                        }
+                    } else if (ocupante) {
+                        if (esPendiente && esFaseAbierta && modoVista === "proxima") {
+                            html += `<div class="turno-bloque" style="background:#e0e0e0; color:#757575;">${ocupante.toUpperCase()} (Espera)</div>`;
+                        } else if (esFija) {
+                            html += `<div class="turno-bloque bg-fijo">${txtFijo}${ocupante.toUpperCase()}</div>`;
+                        } else {
+                            html += `<div class="turno-bloque bg-purple">${ocupante.toUpperCase()}</div>`;
+                        }
+                    } else {
+                        if(modoVista === "proxima") html += `<div class="turno-bloque" style="background:#e0e0e0; color:#999;">VACÍO</div>`;
+                        else html += `<div class="turno-bloque bg-green" onclick="agendarSemana('${dia}', '${jornada}', ${i})">➕ DISPONIBLE</div>`;
+                    }
+                }
+                html += `</div>`;
+            });
+            return html + '</div>';
+        }
+
+        function renderizarSemana() {
+            const maestro = document.getElementById('contenedor-grillas-maestro'); maestro.innerHTML = '';
+            
+            if (viendoProximaSemana && document.getElementById('chk-doble').checked) {
+                maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Jornada Principal: ${jorPre1}</h3>`;
+                maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre1, "proxima");
+                maestro.innerHTML += `<h3 style="margin-top:25px; color:#c62828;">👉 Jornada Secundaria: ${jorPre2}</h3>`;
+                maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre2, "proxima");
+            } else {
+                let bdViendo = viendoProximaSemana ? datosProximaSemana : datosSemanaActual;
+                let jorSeleccionada = viendoProximaSemana ? jorPre1 : document.getElementById('sel-jornada-semana').value;
+                maestro.innerHTML += generarHtmlGrilla(bdViendo, jorSeleccionada, viendoProximaSemana ? "proxima" : "actual");
+            }
+        }
+
+        async function agendarSemana(dia, jornada, room) {
+            if(viendoProximaSemana) return;
+            for(let i=1; i<=12; i++) if(datosSemanaActual[dia][jornada][i.toString()] === modeloActual) datosSemanaActual[dia][jornada][i.toString()] = "";
+            datosSemanaActual[dia][jornada][room.toString()] = modeloActual;
+            renderizarSemana();
+            await fetch(`${API_URL}/api/semana/tomar_cupo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: modeloActual, dia: dia, jornada: jornada, room: room, tipo_semana: "actual" }) });
+        }
+
+        let turnoALiberar = null;
+        function abrirModalLiberar(dia, jornada, room) {
+            turnoALiberar = { dia, jornada, room };
+            document.getElementById('texto-turno-liberar').textContent = `Liberar cupo: ${dia} (${jornada})`;
+            document.getElementById('modal-liberar').style.display = 'flex';
+        }
+        function cerrarModal() { document.getElementById('modal-liberar').style.display = 'none'; turnoALiberar = null; }
+
+        async function confirmarLiberacion() {
+            const motivo = document.getElementById('motivo-liberacion').value.trim();
+            if(!motivo) return alert("Escribe el motivo."); 
+            await fetch(`${API_URL}/api/semana/liberar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: modeloActual, dia: turnoALiberar.dia, jornada: turnoALiberar.jornada, room: turnoALiberar.room, motivo: motivo, foto_base64: "", tipo_semana: viendoProximaSemana ? "proxima" : "actual" }) });
+            mostrarToast("Turno liberado"); cerrarModal(); cargarDatos();
+        }
+
+        cargarDatos(); setInterval(cargarDatos, 60000); 
+    </script>
+</body>
+</html>
