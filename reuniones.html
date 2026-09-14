@@ -3,469 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Módulo de Reuniones - Móvil</title>
+    <title>Reuniones Meet - Paradise</title>
     <style>
         :root {
             --bg-body: #f0f0f0;
             --bg-card: #ffffff;
-            --primary: #4CAF50; 
+            --primary: #4CAF50;
             --primary-hover: #45a049;
             --dark: #212121;
             --text-main: #333333;
             --text-muted: #757575;
+            --info: #2196F3;
+            --warn: #FF9800;
+            --danger: #F44336;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-        }
-
-        .mobile-container {
-            width: 100%;
-            max-width: 480px;
-            min-height: 100vh;
-            background-color: var(--bg-body);
-            display: flex;
-            flex-direction: column;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; }
+        .mobile-container { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; }
 
         header {
-            background-color: var(--dark);
-            color: white;
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background-color: var(--dark); color: white; padding: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 1.15rem; font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10;
         }
-
-        /* Botón de actualizar en la cabecera */
-        .btn-refresh {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.3rem;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .btn-refresh:active {
-            transform: rotate(180deg);
-        }
+        .btn-refresh { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; transition: transform .3s; }
+        .btn-refresh:active { transform: rotate(180deg); }
 
         main { padding: 16px; flex: 1; }
-
-        .card {
-            background-color: var(--bg-card);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: var(--dark);
-            border-bottom: 2px solid var(--bg-body);
-            padding-bottom: 8px;
-        }
+        .card { background: var(--bg-card); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,.05); margin-bottom: 20px; }
+        h2 { font-size: 1.05rem; margin-bottom: 15px; color: var(--dark); border-bottom: 2px solid var(--bg-body); padding-bottom: 8px; }
 
         .form-group { margin-bottom: 20px; }
-
-        label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: var(--text-main);
+        label { display: block; font-size: .9rem; font-weight: bold; margin-bottom: 8px; }
+        select, input[type="text"], input[type="password"] {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;
+            font-size: 1rem; background: #fff;
         }
-
-        select, input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            background-color: #fff;
-        }
-
-        .filtros-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
+        .filtros-container { display: flex; gap: 10px; margin-bottom: 10px; }
         .filtros-container select { flex: 1; padding: 10px; }
         .filtros-container input { flex: 2; padding: 10px; }
 
-        .checkbox-group {
-            max-height: 250px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 5px;
-            background-color: #fafafa;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            padding: 12px 10px;
-            border-bottom: 1px solid #eee;
-            font-size: 1rem;
-            cursor: pointer;
-            background-color: #fff;
-        }
-
+        .checkbox-group { max-height: 250px; overflow-y: auto; border: 1px solid #ccc; border-radius: 8px; padding: 5px; background: #fafafa; }
+        .checkbox-label { display: flex; align-items: center; padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 1rem; cursor: pointer; background: #fff; }
         .checkbox-label:last-child { border-bottom: none; }
-
-        .checkbox-label input {
-            margin-right: 15px;
-            transform: scale(1.3);
-        }
-
-        .badge-jornada {
-            margin-left: auto;
-            font-size: 0.75rem;
-            background-color: #e0e0e0;
-            padding: 4px 8px;
-            border-radius: 6px;
-            color: #555;
-            font-weight: bold;
-        }
+        .checkbox-label input { margin-right: 15px; transform: scale(1.3); }
+        .badge-jornada { margin-left: auto; font-size: .75rem; background: #e0e0e0; padding: 4px 8px; border-radius: 6px; color: #555; font-weight: bold; }
 
         .btn-submit {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            transition: background-color 0.2s;
+            width: 100%; background: var(--primary); color: #fff; border: none;
+            padding: 14px; border-radius: 8px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;
         }
+        .btn-submit:active { background: var(--primary-hover); }
+        .btn-submit:disabled { background: #9E9E9E; cursor: not-allowed; }
 
-        .btn-submit:active { background-color: var(--primary-hover); }
-        .btn-submit:disabled { background-color: #9E9E9E; cursor: not-allowed; }
+        /* Panel de sala creada */
+        .sala-lista { background: #E8F5E9; border: 2px solid var(--primary); border-radius: 12px; padding: 18px; margin-bottom: 20px; text-align: center; }
+        .sala-lista h3 { color: #2E7D32; margin-bottom: 6px; font-size: 1.1rem; }
+        .sala-codigo { font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: bold; letter-spacing: 1px; color: var(--dark); margin: 10px 0; }
+        .btn-meet { display: block; background: var(--info); color: #fff; text-decoration: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1.05rem; margin-top: 10px; }
+        .sala-detalle { font-size: .85rem; color: var(--text-muted); margin-top: 8px; }
 
-        .history-item {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-        .history-item p { margin: 4px 0; font-size: 0.9rem; }
-        
-        .badge-warning {
-            display: inline-block;
-            background-color: #FFF9C4;
-            color: #F57F17;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-top: 8px;
-        }
+        .history-item { border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .history-item p { margin: 4px 0; font-size: .9rem; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: .78rem; font-weight: bold; margin-top: 8px; }
+        .badge-warning { background: #FFF9C4; color: #F57F17; }
+        .badge-ok { background: #E8F5E9; color: #2E7D32; }
+        .badge-movil { background: #E3F2FD; color: #1565C0; margin-left: 6px; }
 
-        .loader { font-size: 0.9rem; color: var(--text-muted); font-style: italic; padding: 10px; }
+        .loader { font-size: .9rem; color: var(--text-muted); font-style: italic; padding: 10px; }
+        .error-box { background: #FFEBEE; border: 1px solid var(--danger); color: #C62828; padding: 12px; border-radius: 8px; font-size: .9rem; margin-bottom: 15px; }
     </style>
 </head>
 <body>
+<div class="mobile-container">
+    <header>
+        <span>📞 Reuniones Meet</span>
+        <button id="btn-refresh" class="btn-refresh" title="Actualizar">🔄</button>
+    </header>
 
-    <div class="mobile-container">
-        <!-- Cabecera con el botón de actualización -->
-        <header>
-            <span>📞 Reuniones Meet</span>
-            <button id="btn-refresh" class="btn-refresh" title="Actualizar datos">🔄</button>
-        </header>
+    <main>
+        <div id="panel-sala"></div>
+        <div id="panel-error"></div>
 
-        <main>
-            <div class="card">
-                <h2>➕ Nueva Reunión</h2>
-                <form id="form-reunion">
-                    
-                    <div class="form-group">
-                        <label for="monitor-select">Monitor a cargo:</label>
-                        <select id="monitor-select" required>
-                            <option value="" disabled selected>Cargando monitores...</option>
+        <div class="card">
+            <h2>➕ Nueva Reunión</h2>
+            <form id="form-reunion">
+                <div class="form-group">
+                    <label for="monitor-select">Monitor a cargo:</label>
+                    <select id="monitor-select" required>
+                        <option value="" disabled selected>Cargando monitores...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de reunión:</label>
+                    <select id="tipo-reunion">
+                        <option value="especificas">Seleccionar modelos específicas</option>
+                        <option value="jornada_completa">Reunión con toda una jornada</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="sec-jornada" style="display:none;">
+                    <label>Selecciona la jornada citada:</label>
+                    <select id="select-jornada">
+                        <option value="Mañana">Jornada Mañana</option>
+                        <option value="Tarde">Jornada Tarde</option>
+                        <option value="Noche">Jornada Noche</option>
+                        <option value="Satelites">Satélites</option>
+                    </select>
+                    <p class="sala-detalle" id="conteo-jornada"></p>
+                </div>
+
+                <div class="form-group" id="sec-especificas">
+                    <label>Modelo(s) citada(s):</label>
+                    <div class="filtros-container">
+                        <select id="filtro-jornada">
+                            <option value="Todas">Todas</option>
+                            <option value="Mañana">Mañana</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Noche">Noche</option>
+                            <option value="Satelites">Satélites</option>
                         </select>
+                        <input type="text" id="filtro-nombre" placeholder="🔍 Buscar nombre...">
                     </div>
-
-                    <div class="form-group">
-                        <label>Tipo de reunión:</label>
-                        <select id="tipo-reunion" onchange="alternarModoReunion()">
-                            <option value="especificas">Seleccionar modelos específicas</option>
-                            <option value="jornada_completa">Reunión con toda una jornada</option>
-                        </select>
+                    <div class="checkbox-group" id="modelos-container">
+                        <p class="loader">Conectando con la base de datos...</p>
                     </div>
+                </div>
 
-                    <div class="form-group" id="sec-jornada-entera" style="display: none;">
-                        <label>Selecciona la jornada citada:</label>
-                        <select id="select-jornada-entera">
-                            <option value="Jornada Mañana">Jornada Mañana</option>
-                            <option value="Jornada Tarde">Jornada Tarde</option>
-                            <option value="Jornada Noche">Jornada Noche</option>
-                            <option value="Satelites">Satelites</option>
-                        </select>
-                    </div>
+                <button type="submit" class="btn-submit" id="btn-iniciar" disabled>
+                    🌐 Iniciar Meet y Registrar
+                </button>
+            </form>
+        </div>
 
-                    <div class="form-group" id="sec-modelos-especificas">
-                        <label>Modelo(s) citada(s):</label>
-                        
-                        <div class="filtros-container">
-                            <select id="filtro-jornada" onchange="filtrarModelos()">
-                                <option value="Todas">Todas</option>
-                                <option value="Mañana">Mañana</option>
-                                <option value="Tarde">Tarde</option>
-                                <option value="Noche">Noche</option>
-                                <option value="Satelites">Satélites</option>
-                            </select>
-                            <input type="text" id="filtro-nombre" placeholder="🔍 Escribe un nombre..." onkeyup="filtrarModelos()">
-                        </div>
+        <div class="card">
+            <h2>🕒 Historial de Hoy</h2>
+            <div id="historial-lista"><p class="loader">Cargando...</p></div>
+        </div>
+    </main>
+</div>
 
-                        <div class="checkbox-group" id="modelos-container">
-                            <p class="loader" id="loader-modelos">Conectando con la base de datos...</p>
-                        </div>
-                        <small style="color: red; display: none; margin-top: 5px;" id="error-modelo">Debes seleccionar al menos una modelo.</small>
-                    </div>
+<script>
+// ===========================================================================
+// CONFIGURACIÓN
+// ===========================================================================
+const API_URL = "https://api-v03l.onrender.com";
 
-                    <button type="submit" class="btn-submit" id="btn-iniciar" disabled>
-                        🌐 Iniciar Meet y Registrar
-                    </button>
-                </form>
-            </div>
+// La clave del estudio solo se pide si la API la exige (CLAVE_ESTUDIO en Render).
+let CLAVE = localStorage.getItem('clave_estudio') || '';
+let MODELOS = [];
 
-            <div class="card">
-                <h2>🕒 Historial de la Sesión</h2>
-                <div id="historial-lista"></div>
-            </div>
-        </main>
-    </div>
+function cabeceras() {
+    const h = { 'Content-Type': 'application/json' };
+    if (CLAVE) h['X-Clave'] = CLAVE;
+    return h;
+}
 
-    <script>
-        const API_URL = "https://api-v03l.onrender.com";
+function mostrarError(mensaje) {
+    document.getElementById('panel-error').innerHTML =
+        `<div class="error-box">⚠️ ${mensaje}</div>`;
+}
+function limpiarError() {
+    document.getElementById('panel-error').innerHTML = '';
+}
 
-        function alternarModoReunion() {
-            const tipo = document.getElementById('tipo-reunion').value;
-            const secJornadaEntera = document.getElementById('sec-jornada-entera');
-            const secEspecificas = document.getElementById('sec-modelos-especificas');
-            
-            if (tipo === 'jornada_completa') {
-                secJornadaEntera.style.display = 'block';
-                secEspecificas.style.display = 'none';
-                document.getElementById('error-modelo').style.display = 'none';
-            } else {
-                secJornadaEntera.style.display = 'none';
-                secEspecificas.style.display = 'block';
-            }
-        }
+// ===========================================================================
+// CARGA DE DATOS
+// ===========================================================================
+async function cargarDatos(silencioso = false) {
+    try {
+        const t = Date.now();
+        const selMonitor = document.getElementById('monitor-select');
+        const monitorPrevio = selMonitor.value;
+        const marcadas = Array.from(document.querySelectorAll('input[name="modelos"]:checked')).map(c => c.value);
 
-        // Filtro a prueba de mayúsculas y minúsculas
-        function filtrarModelos() {
-            const textoBuscado = document.getElementById('filtro-nombre').value.toLowerCase();
-            const jornadaSeleccionada = document.getElementById('filtro-jornada').value.toLowerCase();
-            const etiquetas = document.querySelectorAll('.checkbox-label');
+        const [resMon, resMod] = await Promise.all([
+            fetch(`${API_URL}/api/monitores?t=${t}`, { cache: 'no-store' }),
+            fetch(`${API_URL}/api/modelos?t=${t}`, { cache: 'no-store' })
+        ]);
 
-            etiquetas.forEach(label => {
-                const nombre = label.getAttribute('data-nombre').toLowerCase();
-                const jornada = label.getAttribute('data-jornada').toLowerCase();
-
-                const coincideNombre = nombre.includes(textoBuscado);
-                const coincideJornada = (jornadaSeleccionada === "todas") || (jornada === jornadaSeleccionada);
-
-                if (coincideNombre && coincideJornada) {
-                    label.style.display = "flex";
-                } else {
-                    label.style.display = "none";
-                }
-            });
-        }
-
-        async function cargarDatosIniciales(esSilencioso = false) {
-            try {
-                // Guardar selecciones actuales para no borrarlas al actualizar
-                const selectMonitorElement = document.getElementById('monitor-select');
-                const monitorGuardado = selectMonitorElement.value;
-                const checkboxesMarcados = Array.from(document.querySelectorAll('input[name="modelos"]:checked')).map(cb => cb.value);
-
-                if (!esSilencioso) {
-                    selectMonitorElement.innerHTML = '<option value="" disabled selected>Cargando monitores...</option>';
-                    document.getElementById('modelos-container').innerHTML = '<p class="loader" id="loader-modelos">Conectando con la base de datos...</p>';
-                }
-
-                // --- TRUCO INFALIBLE CONTRA EL CACHÉ ---
-                const tiempoExacto = new Date().getTime();
-
-                // Traer Monitores
-                const resMonitores = await fetch(`${API_URL}/api/monitores?t=${tiempoExacto}`, { cache: 'no-store' });
-                const dataMonitores = await resMonitores.json();
-                
-                selectMonitorElement.innerHTML = '<option value="" disabled selected>Selecciona un monitor...</option>';
-                
-                dataMonitores.monitores.forEach(monitor => {
-                    const option = document.createElement('option');
-                    option.value = monitor;
-                    option.textContent = monitor;
-                    if (monitor === monitorGuardado) option.selected = true;
-                    selectMonitorElement.appendChild(option);
-                });
-
-                // Traer Modelos
-                const resModelos = await fetch(`${API_URL}/api/modelos?t=${tiempoExacto}`, { cache: 'no-store' });
-                const dataModelos = await resModelos.json();
-                
-                const contenedorModelos = document.getElementById('modelos-container');
-                contenedorModelos.innerHTML = ''; 
-                
-                dataModelos.modelos.forEach(mod => {
-                    const label = document.createElement('label');
-                    label.className = 'checkbox-label';
-                    label.setAttribute('data-nombre', mod.nombre);
-                    label.setAttribute('data-jornada', mod.jornada);
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.name = 'modelos';
-                    checkbox.value = mod.nombre;
-                    
-                    if (checkboxesMarcados.includes(mod.nombre)) {
-                        checkbox.checked = true;
-                    }
-                    
-                    const spanBadge = document.createElement('span');
-                    spanBadge.className = 'badge-jornada';
-                    spanBadge.textContent = mod.jornada;
-
-                    label.appendChild(checkbox);
-                    label.appendChild(document.createTextNode(mod.nombre));
-                    label.appendChild(spanBadge); 
-                    
-                    contenedorModelos.appendChild(label);
-                });
-
-                filtrarModelos(); // Re-aplicar filtros si había algo escrito
-                document.getElementById('btn-iniciar').disabled = false;
-
-            } catch (error) {
-                console.error("Error de conexión:", error);
-                if (!esSilencioso) {
-                    document.getElementById('loader-modelos').textContent = "Error de conexión. Verifica Render.";
-                }
-            }
-        }
-
-        // Lógica del botón de envío
-        document.getElementById('form-reunion').addEventListener('submit', async function(event) {
-            event.preventDefault(); 
-            
-            const btnSubmit = document.getElementById('btn-iniciar');
-            const monitor = document.getElementById('monitor-select').value;
-            const tipoReunion = document.getElementById('tipo-reunion').value;
-            let modelosSeleccionadas = [];
-
-            if (tipoReunion === 'jornada_completa') {
-                const jornadaElegida = document.getElementById('select-jornada-entera').value;
-                modelosSeleccionadas = [jornadaElegida];
-            } else {
-                const checkboxes = document.querySelectorAll('input[name="modelos"]:checked');
-                if (checkboxes.length === 0) {
-                    document.getElementById('error-modelo').style.display = 'block';
-                    return;
-                }
-                modelosSeleccionadas = Array.from(checkboxes).map(cb => cb.value);
-            }
-
-            document.getElementById('error-modelo').style.display = 'none';
-
-            try {
-                btnSubmit.disabled = true;
-                btnSubmit.textContent = "Registrando...";
-
-                const respuesta = await fetch(`${API_URL}/api/reuniones`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        monitor: monitor,
-                        modelos: modelosSeleccionadas
-                    })
-                });
-
-                if (respuesta.ok) {
-                    const historialLista = document.getElementById('historial-lista');
-                    const nuevaTarjeta = document.createElement('div');
-                    nuevaTarjeta.className = 'history-item';
-                    
-                    const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    
-                    nuevaTarjeta.innerHTML = `
-                        <p><strong>📞 Reunión con:</strong> ${modelosSeleccionadas.join(', ')}</p>
-                        <p style="color: #757575;">👥 Monitor: ${monitor} | 🕒 ${horaActual}</p>
-                        <span class="badge-warning">⏳ Esperando Notas de Gemini...</span>
-                    `;
-                    historialLista.insertBefore(nuevaTarjeta, historialLista.firstChild);
-
-                    document.getElementById('form-reunion').reset();
-                    alternarModoReunion(); 
-                    
-                    document.querySelectorAll('input[name="modelos"]:checked').forEach(cb => cb.checked = false);
-
-                    // Navegación directa en la misma pestaña para abrir la App de Meet
-                    window.location.href = "https://meet.google.com/new";
-                } else {
-                    alert("Error al registrar en Firebase.");
-                }
-            } catch (error) {
-                console.error("Error al enviar:", error);
-                alert("Hubo un problema de conexión al guardar la reunión.");
-            } finally {
-                btnSubmit.disabled = false;
-                btnSubmit.textContent = "🌐 Iniciar Meet y Registrar";
-            }
+        const datosMon = await resMon.json();
+        selMonitor.innerHTML = '<option value="" disabled selected>Selecciona un monitor...</option>';
+        (datosMon.monitores || []).forEach(m => {
+            const op = document.createElement('option');
+            op.value = m; op.textContent = m;
+            if (m === monitorPrevio) op.selected = true;
+            selMonitor.appendChild(op);
         });
 
-        // -------------------------------------------------------------
-        // INICIALIZACIÓN Y EVENTOS
-        // -------------------------------------------------------------
+        const datosMod = await resMod.json();
+        MODELOS = datosMod.modelos || [];
+        pintarModelos(marcadas);
 
-        // 1. Carga inicial
-        cargarDatosIniciales();
+        document.getElementById('btn-iniciar').disabled = false;
+        limpiarError();
+        actualizarConteoJornada();
+    } catch (e) {
+        console.error(e);
+        if (!silencioso) mostrarError("No se pudo conectar con el servidor.");
+    }
+}
 
-        // 2. Evento del botón de actualización manual (🔄)
-        document.getElementById('btn-refresh').addEventListener('click', () => {
-            const btn = document.getElementById('btn-refresh');
-            btn.style.transform = 'rotate(360deg)';
-            setTimeout(() => { btn.style.transform = 'none'; }, 300);
-            
-            cargarDatosIniciales(true);
+function pintarModelos(marcadas = []) {
+    const cont = document.getElementById('modelos-container');
+    cont.innerHTML = '';
+    MODELOS.forEach(mod => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-label';
+        label.dataset.nombre = mod.nombre;
+        label.dataset.jornada = mod.jornada;
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.name = 'modelos'; cb.value = mod.nombre;
+        if (marcadas.includes(mod.nombre)) cb.checked = true;
+
+        const badge = document.createElement('span');
+        badge.className = 'badge-jornada';
+        badge.textContent = mod.jornada;
+
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(mod.nombre));
+        label.appendChild(badge);
+        cont.appendChild(label);
+    });
+    filtrarModelos();
+}
+
+function filtrarModelos() {
+    const texto = document.getElementById('filtro-nombre').value.toLowerCase();
+    const jor = document.getElementById('filtro-jornada').value.toLowerCase();
+    document.querySelectorAll('.checkbox-label').forEach(l => {
+        const coincideNombre = l.dataset.nombre.toLowerCase().includes(texto);
+        const coincideJornada = (jor === 'todas') || (l.dataset.jornada.toLowerCase() === jor);
+        l.style.display = (coincideNombre && coincideJornada) ? 'flex' : 'none';
+    });
+}
+
+function actualizarConteoJornada() {
+    const jor = document.getElementById('select-jornada').value.toLowerCase();
+    const n = MODELOS.filter(m => (m.jornada || '').toLowerCase() === jor).length;
+    document.getElementById('conteo-jornada').textContent =
+        n ? `Se citarán ${n} modelo(s) de esa jornada.` : 'No hay modelos en esa jornada.';
+}
+
+function alternarModo() {
+    const tipo = document.getElementById('tipo-reunion').value;
+    const esJornada = tipo === 'jornada_completa';
+    document.getElementById('sec-jornada').style.display = esJornada ? 'block' : 'none';
+    document.getElementById('sec-especificas').style.display = esJornada ? 'none' : 'block';
+    if (esJornada) actualizarConteoJornada();
+}
+
+// ===========================================================================
+// HISTORIAL
+// ===========================================================================
+async function cargarHistorial() {
+    const cont = document.getElementById('historial-lista');
+    try {
+        const res = await fetch(`${API_URL}/api/reuniones/hoy?t=${Date.now()}`,
+                                { cache: 'no-store', headers: cabeceras() });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const datos = await res.json();
+        const lista = datos.reuniones || [];
+
+        if (!lista.length) {
+            cont.innerHTML = '<p class="loader">Todavía no hay reuniones hoy.</p>';
+            return;
+        }
+
+        cont.innerHTML = lista.map(r => {
+            const quienes = r.jornada_citada
+                ? `Jornada ${r.jornada_citada} (${r.total_modelos} modelos)`
+                : r.modelos.join(', ');
+            const movil = r.origen === 'movil' ? '<span class="badge badge-movil">📱 móvil</span>' : '';
+            const acta = r.link_notas
+                ? `<a href="${r.link_notas}" target="_blank" class="badge badge-ok">📝 Leer notas</a>`
+                : '<span class="badge badge-warning">⏳ Esperando notas de Gemini</span>';
+            const codigo = r.codigo ? `<p style="color:#757575;">🔑 ${r.codigo}</p>` : '';
+            return `<div class="history-item">
+                        <p><strong>📞 ${quienes}</strong></p>
+                        <p style="color:#757575;">👥 ${r.monitor} | 🕒 ${r.hora} ${movil}</p>
+                        ${codigo}
+                        ${acta}
+                    </div>`;
+        }).join('');
+    } catch (e) {
+        cont.innerHTML = '<p class="loader">No se pudo cargar el historial.</p>';
+    }
+}
+
+// ===========================================================================
+// CREAR REUNIÓN
+// ===========================================================================
+document.getElementById('form-reunion').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    limpiarError();
+
+    const btn = document.getElementById('btn-iniciar');
+    const monitor = document.getElementById('monitor-select').value;
+    const tipo = document.getElementById('tipo-reunion').value;
+
+    if (!monitor) { mostrarError("Selecciona el monitor a cargo."); return; }
+
+    const cuerpo = { monitor, tipo, modelos: [], jornada: "" };
+
+    if (tipo === 'jornada_completa') {
+        cuerpo.jornada = document.getElementById('select-jornada').value;
+    } else {
+        cuerpo.modelos = Array.from(document.querySelectorAll('input[name="modelos"]:checked')).map(c => c.value);
+        if (!cuerpo.modelos.length) { mostrarError("Selecciona al menos una modelo."); return; }
+    }
+
+    btn.disabled = true;
+    btn.textContent = "⏳ Creando sala...";
+
+    try {
+        const res = await fetch(`${API_URL}/api/reuniones`, {
+            method: 'POST', headers: cabeceras(), body: JSON.stringify(cuerpo)
         });
 
-        // 3. Ciclo de auto-actualización silenciosa (5 minutos = 300000 ms)
-        setInterval(() => {
-            console.log("Auto-actualizando base de datos en segundo plano...");
-            cargarDatosIniciales(true);
-        }, 300000);
+        if (res.status === 401) {
+            const clave = prompt("Clave del estudio:");
+            if (clave) { CLAVE = clave; localStorage.setItem('clave_estudio', clave); }
+            throw new Error("Clave requerida. Vuelve a pulsar el botón.");
+        }
+        if (!res.ok) {
+            let detalle = `HTTP ${res.status}`;
+            try { const j = await res.json(); if (j.detail) detalle = j.detail; } catch (_) {}
+            throw new Error(detalle);
+        }
 
-    </script>
+        const datos = await res.json();
+        mostrarSalaCreada(datos);
+        document.querySelectorAll('input[name="modelos"]:checked').forEach(c => c.checked = false);
+        cargarHistorial();
+
+        // Se abre en pestaña NUEVA: si se navegara en la misma, esta página
+        // se destruiría y perderías el enlace y el historial.
+        const ventana = window.open(datos.enlace, '_blank');
+        if (!ventana) {
+            // El navegador bloqueó la ventana emergente: queda el botón grande.
+            console.log("Ventana emergente bloqueada; usar el botón ABRIR MEET.");
+        }
+    } catch (e) {
+        mostrarError(e.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "🌐 Iniciar Meet y Registrar";
+    }
+});
+
+function mostrarSalaCreada(datos) {
+    const quienes = datos.jornada_citada
+        ? `Jornada ${datos.jornada_citada} — ${datos.total_modelos} modelos`
+        : datos.modelos.join(', ');
+
+    document.getElementById('panel-sala').innerHTML = `
+        <div class="sala-lista">
+            <h3>✅ Sala creada y registrada</h3>
+            <div class="sala-codigo">${datos.codigo || '(sin código)'}</div>
+            <a href="${datos.enlace}" target="_blank" class="btn-meet">🌐 ABRIR MEET</a>
+            <p class="sala-detalle">${quienes}</p>
+            <p class="sala-detalle">Monitor: ${datos.monitor}</p>
+            <p class="sala-detalle">Activa las notas de Gemini dentro de la llamada.</p>
+        </div>`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===========================================================================
+// INICIALIZACIÓN
+// ===========================================================================
+document.getElementById('tipo-reunion').addEventListener('change', alternarModo);
+document.getElementById('select-jornada').addEventListener('change', actualizarConteoJornada);
+document.getElementById('filtro-nombre').addEventListener('keyup', filtrarModelos);
+document.getElementById('filtro-jornada').addEventListener('change', filtrarModelos);
+document.getElementById('btn-refresh').addEventListener('click', () => {
+    cargarDatos(true);
+    cargarHistorial();
+});
+
+cargarDatos();
+cargarHistorial();
+setInterval(() => { cargarDatos(true); cargarHistorial(); }, 300000);
+</script>
 </body>
 </html>
