@@ -26,6 +26,7 @@
             --naranja: #FF9800;    /* tu turno confirmado */
             --fijo: #03A9F4;       /* tu cuarto fijo */
             --satelite: #00BFA5;   /* modelo satélite */
+            --extra: #EC407A;      /* supernumeraria: cubre un hueco */
             --rojo: #F44336;
             --espera: #FFFFFF;     /* lista de espera: BLANCO */
         }
@@ -129,6 +130,10 @@
            confundirlas con las del estudio. Además llevan el icono 🛰, que
            se lee aunque el color no se distinga bien en un móvil al sol. */
         .bg-satelite { background-color: var(--satelite); color: #00211D; }
+        /* Supernumeraria: no tiene jornada propia, está cubriendo un hueco.
+           Mismo criterio que con las satélites: color propio MÁS icono, para
+           que se distinga aunque la pantalla esté lavada por el sol. */
+        .bg-extra { background-color: var(--extra); color: #2B0716; }
         .bg-elegida { background-color: var(--amarillo); color: #000; border: 2px solid var(--negro); cursor: pointer; }
         /* LISTA DE ESPERA = BLANCO */
         .bg-espera { background-color: var(--espera); color: #444; border: 2px dashed #9E9E9E; }
@@ -219,6 +224,7 @@
                 <span><div class="caja-color" style="background:var(--fijo);"></div> Fijo</span>
                 <span><div class="caja-color" style="background:#FFF;"></div> En espera</span>
                 <span><div class="caja-color" style="background:var(--satelite);"></div> 🛰 Satélite</span>
+                <span><div class="caja-color" style="background:var(--extra);"></div> ➕ Supernumeraria</span>
             </div>
 
             <!-- Selector de jornada del status YA PUBLICADO.
@@ -408,6 +414,13 @@ function esSatelite(nombre) {
     return (perfiles[nombre] || {}).jornada === "Satelites";
 }
 
+/* Una supernumeraria cubre huecos: no tiene jornada propia, así que en
+   cualquiera de las tres va a lista de espera. Es distinta de una satélite
+   —esa trabaja desde su casa— y por eso lleva su propio color. */
+function esSupernumeraria(nombre) {
+    return (perfiles[nombre] || {}).jornada === "Supernumerario";
+}
+
 function textoPerfil() {
     const p = miPerfil();
     const tipo = p.doble_jornada_tipo || "";
@@ -424,7 +437,10 @@ function textoPerfil() {
     if (JORNADAS.includes(p.jornada)) {
         return `Tu jornada oficial es <b>${p.jornada}</b>: ahí tienes el cupo asegurado. ${cierre}`;
     }
-    return `Eres <b>Satélite</b>: no tienes cupo asegurado en el estudio, pero puedes programarte en cualquier jornada. Entrarás si queda algún cupo sin usar. ${cierre}`;
+    if (p.jornada === "Supernumerario") {
+        return `Eres <b>supernumeraria</b>: cubres los huecos del estudio, así que no tienes una jornada propia con cupo asegurado. Puedes programarte en las tres y entrarás en los cupos que queden libres. ${cierre}`;
+    }
+    return `Eres <b>Satélite</b>: trabajas desde tu casa, así que no tienes cupo asegurado en el estudio, pero puedes programarte en cualquier jornada. Entrarás si queda algún cupo sin usar. ${cierre}`;
 }
 
 /* ============================================ PANEL DE PRE-AGENDAMIENTO */
@@ -599,13 +615,17 @@ function generarGrilla(bd, jornada, modo) {
                 }
             } else if (ocupante) {
                 const satelite = esSatelite(ocupante);
-                const nombreVisible = (satelite ? "🛰 " : "") + ocupante.toUpperCase();
+                const extra = esSupernumeraria(ocupante);
+                const icono = satelite ? "🛰 " : (extra ? "➕ " : "");
+                const nombreVisible = icono + ocupante.toUpperCase();
                 if (enEspera) {
                     html += `<div class="turno-bloque bg-espera-otra">${nombreVisible} (espera)</div>`;
                 } else if (esFija) {
                     html += `<div class="turno-bloque bg-fija">${prefijo}${nombreVisible}</div>`;
                 } else if (satelite) {
                     html += `<div class="turno-bloque bg-satelite">${nombreVisible}</div>`;
+                } else if (extra) {
+                    html += `<div class="turno-bloque bg-extra">${nombreVisible}</div>`;
                 } else {
                     html += `<div class="turno-bloque bg-morado">${nombreVisible}</div>`;
                 }
