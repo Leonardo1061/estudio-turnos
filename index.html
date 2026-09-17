@@ -6,137 +6,104 @@
     <title>Acceso - Estudio</title>
     <style>
         :root {
-            --primary: #4CAF50;
-            --primary-hover: #45a049;
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --text-main: #333333;
+            --amarillo: #FFD500;
+            --amarillo-oscuro: #E6A700;
+            --negro: #101010;
+            --negro-suave: #1C1C1C;
+            --verde: #4CAF50;
+            --rojo: #F44336;
+            --bg-color: #F5F5F5;
+            --card-bg: #FFFFFF;
+            --texto: #222222;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 
         body {
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            background-color: var(--negro);
+            background-image: radial-gradient(circle at 20% 15%, #2A2A2A 0%, var(--negro) 55%);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px;
         }
 
         .login-container {
             background-color: var(--card-bg);
-            width: 100%;
-            max-width: 380px;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            width: 100%; max-width: 390px;
+            padding: 34px 28px 30px;
+            border-radius: 14px;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+            border-top: 7px solid var(--amarillo);
             text-align: center;
         }
 
-        .login-container h2 {
-            color: var(--text-main);
-            margin-bottom: 30px;
-            font-size: 1.6rem;
-            letter-spacing: 0.5px;
-        }
+        .login-container h2 { color: var(--texto); margin-bottom: 4px; font-size: 1.5rem; }
+        .login-container .sub { color: #888; font-size: 0.8rem; margin-bottom: 26px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
 
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #555;
-        }
+        .input-group { margin-bottom: 18px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 7px; font-size: 0.85rem; font-weight: bold; color: #555; }
 
         .input-group select, .input-group input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s;
-            background-color: #fafafa;
+            width: 100%; padding: 13px;
+            border: 2px solid #E3E3E3; border-radius: 8px;
+            font-size: 1rem; outline: none; background-color: #FAFAFA;
+            transition: border-color 0.2s, background-color 0.2s;
         }
-
-        .input-group select:focus, .input-group input:focus {
-            border-color: var(--primary);
-            background-color: #fff;
-        }
-
-        .input-group select:disabled {
-            background-color: #e9ECEf;
-            color: #6c757d;
-            cursor: not-allowed;
-        }
+        .input-group select:focus, .input-group input:focus { border-color: var(--amarillo); background-color: #fff; }
+        .input-group select:disabled { background-color: #EDEDED; color: #9E9E9E; cursor: not-allowed; }
 
         .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            margin-top: 10px;
+            width: 100%; padding: 15px;
+            background-color: var(--amarillo); color: #000;
+            border: 2px solid var(--amarillo-oscuro); border-radius: 8px;
+            font-size: 1.05rem; font-weight: bold; cursor: pointer;
+            transition: transform 0.1s; margin-top: 8px;
         }
-
-        .btn-submit:active {
-            transform: scale(0.98);
-        }
-
-        .btn-submit:disabled {
-            background-color: #9e9e9e;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled { background-color: #C9C9C9; border-color: #B0B0B0; color: #6F6F6F; cursor: not-allowed; }
 
         .error-message {
-            color: #d32f2f;
-            background-color: #ffebee;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            margin-top: 20px;
-            display: none;
+            color: #B71C1C; background-color: #FFEBEE;
+            border-left: 5px solid var(--rojo);
+            padding: 11px; border-radius: 6px;
+            font-size: 0.88rem; margin-top: 18px; display: none; text-align: left;
         }
-        
-        .info-loader {
-            font-size: 0.85rem;
-            color: #2196F3;
-            margin-bottom: 15px;
-            font-style: italic;
+
+        .info-loader { font-size: 0.82rem; color: #8A6D00; margin-bottom: 14px; font-style: italic; }
+
+        /* ============ AVISO DE JORNADA LLENA ============ */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.78); display: none;
+            justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+        }
+        .modal-content {
+            background: #fff; padding: 26px 22px; border-radius: 14px;
+            width: 100%; max-width: 380px; text-align: center;
+            border-top: 7px solid var(--amarillo);
+        }
+        .modal-content .icono { font-size: 2.6rem; margin-bottom: 10px; }
+        .modal-content h3 { margin-bottom: 12px; color: var(--texto); }
+        .modal-content p { font-size: 0.93rem; color: #555; line-height: 1.55; margin-bottom: 20px; }
+        .btn-modal {
+            width: 100%; padding: 13px; background: var(--negro); color: var(--amarillo);
+            border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <div class="login-container">
-        <h2>🔒 Acceso Modelos</h2>
-        
+        <h2>Acceso Modelos</h2>
+        <p class="sub">Paradise</p>
+
         <p class="info-loader" id="status-text">Cargando base de datos...</p>
 
         <form id="login-form">
-            <!-- Selector de Jornada -->
             <div class="input-group">
-                <label for="jornada-select">1. Selecciona tu Jornada</label>
+                <label for="jornada-select">1. Selecciona tu jornada</label>
                 <select id="jornada-select" required disabled>
                     <option value="" disabled selected>Cargando jornadas...</option>
-                    <option value="Todas">Todas (Ver lista completa)</option>
+                    <option value="Todas">Todas (ver lista completa)</option>
                     <option value="Mañana">Mañana</option>
                     <option value="Tarde">Tarde</option>
                     <option value="Noche">Noche</option>
@@ -144,151 +111,160 @@
                 </select>
             </div>
 
-            <!-- Selector de Nombre (Se llena dinámicamente) -->
             <div class="input-group">
-                <label for="nombre">2. Tu Nombre</label>
+                <label for="nombre">2. Tu nombre</label>
                 <select id="nombre" required disabled>
                     <option value="" disabled selected>Primero selecciona una jornada...</option>
                 </select>
             </div>
-            
+
             <div class="input-group">
                 <label for="password">3. Contraseña</label>
                 <input type="password" id="password" placeholder="Ingresa tu clave" required disabled>
             </div>
-            
+
             <button type="submit" class="btn-submit" id="btn-login" disabled>Ingresar</button>
-            
+
             <div class="error-message" id="error-msg"></div>
         </form>
     </div>
 
-    <script>
-        const API_URL = "https://api-v03l.onrender.com";
-        let listaModelosGlobal = []; // Aquí guardaremos las modelos temporalmente
+    <!-- AVISO: la jornada a la que aplicó se llenó -->
+    <div class="modal-overlay" id="modal-aviso">
+        <div class="modal-content">
+            <div class="icono">🔔</div>
+            <h3>Aviso importante</h3>
+            <p id="texto-aviso"></p>
+            <button class="btn-modal" onclick="continuarAlPanel()">Entendido, continuar</button>
+        </div>
+    </div>
 
-        // 1. Descargar la lista de modelos al abrir la página
-        async function cargarModelos() {
-            const statusText = document.getElementById('status-text');
-            const selectJornada = document.getElementById('jornada-select');
-            
-            try {
-                const tiempoExacto = new Date().getTime(); // Rompedor de caché
-                const respuesta = await fetch(`${API_URL}/api/modelos?t=${tiempoExacto}`, { cache: 'no-store' });
-                
-                if (respuesta.ok) {
-                    const datos = await respuesta.json();
-                    listaModelosGlobal = datos.modelos;
-                    
-                    // Habilitar el selector de jornadas
-                    selectJornada.disabled = false;
-                    selectJornada.options[0].textContent = "Elige una opción...";
-                    statusText.style.display = 'none'; // Ocultar mensaje de carga
-                } else {
-                    throw new Error("No se pudo cargar la lista");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                statusText.textContent = "Error al conectar con la base de datos.";
-                statusText.style.color = "#d32f2f";
+<script>
+/* =========================================================================
+   LOGIN DE LAS MODELOS
+
+   NOVEDAD: si la modelo quedó en lista de espera en una jornada que ya no
+   tiene ni un cupo libre, se le dice NADA MÁS ENTRAR, en vez de dejar que
+   lo descubra sola mirando la grilla. El aviso lo calcula la API dentro de
+   la propia respuesta del login: no hay ninguna petición extra.
+   ========================================================================= */
+
+const API_URL = "https://api-v03l.onrender.com";
+let listaModelosGlobal = [];
+
+async function cargarModelos() {
+    const statusText = document.getElementById('status-text');
+    const selectJornada = document.getElementById('jornada-select');
+
+    try {
+        const respuesta = await fetch(`${API_URL}/api/modelos?t=${Date.now()}`, { cache: 'no-store' });
+        if (!respuesta.ok) throw new Error("No se pudo cargar la lista");
+
+        const datos = await respuesta.json();
+        listaModelosGlobal = datos.modelos;
+
+        selectJornada.disabled = false;
+        selectJornada.options[0].textContent = "Elige una opción...";
+        statusText.style.display = 'none';
+    } catch (error) {
+        console.error("Error:", error);
+        statusText.textContent = "Error al conectar con la base de datos.";
+        statusText.style.color = "#B71C1C";
+    }
+}
+
+document.getElementById('jornada-select').addEventListener('change', function () {
+    const jornadaElegida = this.value;
+    const selectNombre = document.getElementById('nombre');
+    const inputPassword = document.getElementById('password');
+    const btnLogin = document.getElementById('btn-login');
+
+    selectNombre.innerHTML = '<option value="" disabled selected>Selecciona tu nombre...</option>';
+
+    let modelosFiltradas = (jornadaElegida === 'Todas')
+        ? listaModelosGlobal
+        : listaModelosGlobal.filter(m => m.jornada === jornadaElegida);
+
+    modelosFiltradas.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+    if (modelosFiltradas.length > 0) {
+        modelosFiltradas.forEach(mod => {
+            const option = document.createElement('option');
+            option.value = mod.nombre;
+            option.textContent = mod.nombre;
+            selectNombre.appendChild(option);
+        });
+        selectNombre.disabled = false;
+        inputPassword.disabled = false;
+        btnLogin.disabled = false;
+    } else {
+        const option = document.createElement('option');
+        option.value = "";
+        option.textContent = "No hay modelos en esta jornada";
+        selectNombre.appendChild(option);
+        selectNombre.disabled = true;
+        inputPassword.disabled = true;
+        btnLogin.disabled = true;
+    }
+});
+
+function continuarAlPanel() {
+    window.location.href = "turnos.html";
+}
+
+document.getElementById('login-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const nombre = document.getElementById('nombre').value;
+    const password = document.getElementById('password').value.trim();
+    const btnLogin = document.getElementById('btn-login');
+    const errorMsg = document.getElementById('error-msg');
+
+    errorMsg.style.display = 'none';
+    btnLogin.disabled = true;
+    btnLogin.textContent = "Verificando...";
+
+    try {
+        const respuesta = await fetch(`${API_URL}/api/modelos/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre: nombre, password: password })
+        });
+
+        const datos = await respuesta.json();
+
+        if (respuesta.ok) {
+            localStorage.setItem('modelo_actual', datos.nombre);
+            localStorage.setItem('jornada_actual', datos.jornada);
+
+            btnLogin.style.backgroundColor = '#4CAF50';
+            btnLogin.style.color = '#fff';
+            btnLogin.textContent = "¡Bienvenida!";
+
+            // Si la API mandó un aviso, se enseña ANTES de entrar al panel.
+            if (datos.aviso) {
+                document.getElementById('texto-aviso').textContent = datos.aviso;
+                document.getElementById('modal-aviso').style.display = 'flex';
+                return;
             }
+
+            setTimeout(continuarAlPanel, 800);
+        } else {
+            errorMsg.textContent = datos.detail || "Error al iniciar sesión.";
+            errorMsg.style.display = 'block';
+            btnLogin.disabled = false;
+            btnLogin.textContent = "Ingresar";
         }
+    } catch (error) {
+        console.error("Error:", error);
+        errorMsg.textContent = "No hay conexión con el servidor.";
+        errorMsg.style.display = 'block';
+        btnLogin.disabled = false;
+        btnLogin.textContent = "Ingresar";
+    }
+});
 
-        // 2. Filtrar nombres cuando cambian la jornada
-        document.getElementById('jornada-select').addEventListener('change', function() {
-            const jornadaElegida = this.value;
-            const selectNombre = document.getElementById('nombre');
-            const inputPassword = document.getElementById('password');
-            const btnLogin = document.getElementById('btn-login');
-            
-            // Limpiar la lista actual
-            selectNombre.innerHTML = '<option value="" disabled selected>Selecciona tu nombre...</option>';
-            
-            // Filtrar el arreglo global
-            let modelosFiltradas = [];
-            if (jornadaElegida === 'Todas') {
-                modelosFiltradas = listaModelosGlobal;
-            } else {
-                modelosFiltradas = listaModelosGlobal.filter(m => m.jornada === jornadaElegida);
-            }
-
-            // Ordenar alfabéticamente para mayor facilidad
-            modelosFiltradas.sort((a, b) => a.nombre.localeCompare(b.nombre));
-
-            // Poblar el dropdown de nombres
-            if (modelosFiltradas.length > 0) {
-                modelosFiltradas.forEach(mod => {
-                    const option = document.createElement('option');
-                    option.value = mod.nombre;
-                    option.textContent = mod.nombre;
-                    selectNombre.appendChild(option);
-                });
-                selectNombre.disabled = false;
-                inputPassword.disabled = false;
-                btnLogin.disabled = false;
-            } else {
-                const option = document.createElement('option');
-                option.value = "";
-                option.textContent = "No hay modelos en esta jornada";
-                selectNombre.appendChild(option);
-                selectNombre.disabled = true;
-                inputPassword.disabled = true;
-                btnLogin.disabled = true;
-            }
-        });
-
-        // 3. Enviar el formulario de Login
-        document.getElementById('login-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            const nombre = document.getElementById('nombre').value;
-            const password = document.getElementById('password').value.trim();
-            const btnLogin = document.getElementById('btn-login');
-            const errorMsg = document.getElementById('error-msg');
-
-            errorMsg.style.display = 'none';
-            btnLogin.disabled = true;
-            btnLogin.textContent = "Verificando...";
-
-            try {
-                const respuesta = await fetch(`${API_URL}/api/modelos/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nombre: nombre,
-                        password: password
-                    })
-                });
-
-                const datos = await respuesta.json();
-
-                if (respuesta.ok) {
-                    localStorage.setItem('modelo_actual', datos.nombre);
-                    localStorage.setItem('jornada_actual', datos.jornada);
-                    
-                    btnLogin.style.backgroundColor = '#388E3C';
-                    btnLogin.textContent = "¡Bienvenida!";
-                    
-                    setTimeout(() => {
-                        window.location.href = "turnos.html";
-                    }, 1000);
-                } else {
-                    errorMsg.textContent = datos.detail || "Error al iniciar sesión.";
-                    errorMsg.style.display = 'block';
-                    btnLogin.disabled = false;
-                    btnLogin.textContent = "Ingresar";
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                errorMsg.textContent = "No hay conexión con el servidor.";
-                errorMsg.style.display = 'block';
-                btnLogin.disabled = false;
-                btnLogin.textContent = "Ingresar";
-            }
-        });
-
-        // Iniciar la descarga de datos al cargar el script
-        cargarModelos();
-    </script>
+cargarModelos();
+</script>
 </body>
 </html>

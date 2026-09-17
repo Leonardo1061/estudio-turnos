@@ -5,74 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Turnos</title>
     <style>
-        :root { --primary: #4CAF50; --danger: #F44336; --warning: #FF9800; --purple: #9c27b0; --info: #1976D2; --fijo: #03A9F4; --dark: #212121; --bg-body: #f4f6f9; --card-bg: #ffffff; --border: #e0e0e0; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
-        body { background-color: var(--bg-body); color: #333; padding-bottom: 30px; }
-        header { background-color: var(--dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .header-info h1 { font-size: 1.1rem; margin-bottom: 3px; }
-        .header-info p { font-size: 0.8rem; color: #ccc; }
-        .header-actions { display: flex; gap: 10px; }
-        .btn-entregar { background: var(--warning); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; display: none; }
-        
-        .container { max-width: 100%; margin: 0 auto; padding: 10px; overflow-x: hidden;}
-        .card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg-body); padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
-        .fecha-hoy { font-weight: bold; color: #555; font-size: 0.95rem; }
-        .dropdown-jornada { font-size: 0.9rem; font-weight: bold; color: var(--dark); border: none; background: transparent; outline: none; cursor: pointer; text-transform: uppercase; }
-        
-        .btn-agendar-amarillo { background-color: #FFC107; color: #000; border: 2px solid #FFA000; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.9rem; transition: 0.2s; margin: 0;}
-        .btn-agendar-amarillo:active { transform: scale(0.98); }
-        .btn-volver-azul { background-color: #1976D2; color: #fff; border: 2px solid #0D47A1; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.9rem; transition: 0.2s; margin: 0;}
-        .btn-volver-azul:active { transform: scale(0.98); }
-        
-        .room-row { display: grid; grid-template-columns: 35px 1fr 90px; border: 1px solid var(--border); border-bottom: none; align-items: center; }
-        .room-row:last-child { border-bottom: 1px solid var(--border); }
-        .room-row > div { padding: 10px 5px; text-align: center; font-size: 0.85rem; border-right: 1px solid var(--border); }
-        .r-num { font-weight: bold; background-color: #fafafa; }
+        :root {
+            /* --- Paleta nueva: amarillo y negro --- */
+            --amarillo: #FFD500;
+            --amarillo-oscuro: #E6A700;
+            --negro: #101010;
+            --negro-suave: #1C1C1C;
+            --gris-linea: #E3E3E3;
+            --bg-body: #F5F5F5;
+            --card-bg: #FFFFFF;
+
+            /* --- Colores CON SIGNIFICADO: no se tocan --- */
+            --verde: #4CAF50;      /* libre */
+            --morado: #9C27B0;     /* ocupado por otra */
+            --naranja: #FF9800;    /* tu turno confirmado */
+            --fijo: #03A9F4;       /* tu cuarto fijo */
+            --rojo: #F44336;
+            --espera: #FFFFFF;     /* lista de espera: BLANCO */
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: var(--bg-body); color: #222; padding-bottom: 110px; }
+
+        /* ===================== CABECERA ===================== */
+        header {
+            background-color: var(--negro); color: #fff; padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            border-bottom: 4px solid var(--amarillo);
+        }
+        .header-info h1 { font-size: 1.05rem; margin-bottom: 2px; }
+        .header-info p { font-size: 0.75rem; color: var(--amarillo); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        .btn-entregar {
+            background: var(--amarillo); color: #000; border: none;
+            padding: 9px 13px; border-radius: 6px; font-weight: bold;
+            cursor: pointer; display: none; font-size: 0.85rem;
+        }
+        .btn-campana {
+            position: relative; background: var(--negro-suave); color: var(--amarillo);
+            border: 2px solid #3A3A3A; width: 42px; height: 40px; border-radius: 6px;
+            font-size: 1.15rem; cursor: pointer; line-height: 1;
+        }
+        .btn-campana.tiene-avisos { border-color: var(--amarillo); animation: latido 1.6s infinite; }
+        @keyframes latido { 0%,100% { transform: scale(1); } 50% { transform: scale(1.09); } }
+        .punto-campana {
+            position: absolute; top: -5px; right: -5px; background: var(--rojo);
+            color: #fff; border-radius: 50%; min-width: 19px; height: 19px;
+            font-size: 0.7rem; font-weight: bold; display: none;
+            align-items: center; justify-content: center; padding: 0 4px;
+        }
+
+        .container { max-width: 100%; padding: 12px; overflow-x: hidden; }
+        .card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--amarillo); padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .fecha-hoy { font-weight: bold; color: #444; font-size: 0.95rem; }
+        .dropdown-jornada { font-size: 0.85rem; font-weight: bold; color: var(--negro); border: 2px solid var(--negro); background: var(--amarillo); padding: 7px 10px; border-radius: 6px; outline: none; cursor: pointer; text-transform: uppercase; }
+
+        .btn-amarillo { background-color: var(--amarillo); color: #000; border: 2px solid var(--amarillo-oscuro); padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.88rem; }
+        .btn-negro { background-color: var(--negro); color: var(--amarillo); border: 2px solid var(--negro); padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.88rem; }
+        .btn-amarillo:active, .btn-negro:active { transform: scale(0.98); }
+
+        /* ===================== CUARTOS DE HOY ===================== */
+        .room-row { display: grid; grid-template-columns: 38px 1fr 96px; border: 1px solid var(--gris-linea); border-bottom: none; align-items: center; }
+        .room-row:last-child { border-bottom: 1px solid var(--gris-linea); }
+        .room-row > div { padding: 10px 5px; text-align: center; font-size: 0.85rem; border-right: 1px solid var(--gris-linea); }
+        .r-num { font-weight: bold; background-color: var(--negro); color: var(--amarillo); }
         .r-name { text-align: left !important; text-transform: uppercase; font-weight: bold; color: #444; }
         .r-state { font-weight: bold; font-size: 0.75rem; }
-        .estado-ocupada { background-color: #ffebee; color: #c62828; }
-        .estado-salida { background-color: #fff8e1; color: #f57f17; }
-        .estado-disponible { background-color: #e8f5e9; color: #2e7d32; cursor: pointer; }
-        .estado-neutro { background-color: #f5f5f5; color: #757575; }
+        .estado-ocupada { background-color: #FFEBEE; color: #C62828; }
+        .estado-salida { background-color: #FFF8E1; color: #F57F17; }
+        .estado-disponible { background-color: #E8F5E9; color: #2E7D32; cursor: pointer; }
+        .estado-neutro { background-color: #F5F5F5; color: #757575; }
+        .estado-elegida { background-color: var(--amarillo); color: #000; cursor: pointer; }
 
-        .leyenda { display: flex; gap: 10px; font-size: 0.75rem; justify-content: center; flex-wrap: wrap; background: #fafafa; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; width: 100%; margin-bottom: 15px;}
-        .leyenda span { display: flex; align-items: center; gap: 5px; color: #555;}
-        .caja-color { width: 12px; height: 12px; border-radius: 3px; }
+        /* ===================== LEYENDA ===================== */
+        .leyenda { display: flex; gap: 12px; font-size: 0.72rem; justify-content: center; flex-wrap: wrap; background: var(--negro); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; }
+        .leyenda span { display: flex; align-items: center; gap: 5px; color: #fff; }
+        .caja-color { width: 13px; height: 13px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.35); }
 
-        #pre-agendamiento-container { background-color: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffb74d; }
-        .grid-dias { display: grid; grid-template-columns: repeat(auto-fit, minmax(75px, 1fr)); gap: 8px; margin-bottom: 15px; }
-        .dia-btn { padding: 10px 5px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: 0.2s; user-select: none; }
-        .dia-asiste { background-color: #e8f5e9; color: #2e7d32; border: 2px solid #4CAF50; }
-        .dia-falta { background-color: #ffebee; color: #c62828; border: 2px dashed #F44336; }
-        .chk-container { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-weight: bold; color: #e65100; cursor: pointer;}
-        
-        .semana-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; }
-        .dia-columna { min-width: 150px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background-color: #fafafa; }
-        .dia-titulo { background-color: #3f51b5; color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 0.9rem; }
-        .turno-bloque { padding: 8px 5px; border-bottom: 1px solid var(--border); font-size: 0.75rem; text-align: center; color: white; font-weight: bold; line-height: 1.2; transition: all 0.2s; }
-        
-        .bg-purple { background-color: var(--purple); }
-        .bg-green { background-color: var(--primary); cursor: pointer; }
-        .bg-mine { background-color: var(--warning); cursor: pointer; border: 2px solid #E65100; box-shadow: inset 0 0 5px rgba(0,0,0,0.3);}
-        .bg-fijo { background-color: var(--fijo); border: 2px solid #0288D1; cursor: pointer; box-shadow: inset 0 0 5px rgba(0,0,0,0.2);}
-        .bg-neutro { background-color: #9e9e9e; color: white; border: 2px solid #757575;}
-        
-        .alerta-espera { background: #fffde7; border-left: 4px solid #fbc02d; padding: 10px; font-size: 0.85rem; color: #555; margin-bottom: 15px; display: none;}
+        /* ===================== PRE-AGENDAMIENTO ===================== */
+        #pre-agendamiento { background-color: #FFFDF0; padding: 15px; border-radius: 10px; margin-bottom: 18px; border: 2px solid var(--amarillo); }
+        #pre-agendamiento h3 { color: var(--negro); margin-bottom: 8px; font-size: 1.05rem; }
+        .aviso-doble { background: var(--negro); color: #fff; padding: 12px; border-radius: 8px; font-size: 0.88rem; line-height: 1.5; margin-bottom: 14px; }
+        .aviso-doble b { color: var(--amarillo); }
 
-        .btn-logout-bottom { width: 100%; background-color: var(--danger); color: white; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 15px; }
-        #toast-msg { visibility: hidden; min-width: 250px; background-color: #4CAF50; color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; opacity: 0; transition: opacity 0.4s, bottom 0.4s; }
-        #toast-msg.show { visibility: visible; opacity: 1; bottom: 50px; }
-        
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; }
-        .btn-modal-liberar { background: var(--danger); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer;}
-        .btn-modal-cancelar { background: #e0e0e0; color: #333; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer;}
+        .bloque-jornada { border: 2px solid var(--gris-linea); border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fff; }
+        .bloque-jornada.oficial { border-color: var(--verde); }
+        .bloque-jornada.espera { border-color: #BDBDBD; border-style: dashed; }
+        .titulo-jornada { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .etiqueta-oficial { background: var(--verde); color: #fff; font-size: 0.68rem; padding: 3px 8px; border-radius: 20px; }
+        .etiqueta-espera { background: #757575; color: #fff; font-size: 0.68rem; padding: 3px 8px; border-radius: 20px; }
+        .nota-jornada { font-size: 0.76rem; color: #666; margin-bottom: 10px; line-height: 1.45; }
+        .nota-espera { color: #B26A00; font-weight: bold; }
+
+        .grid-dias { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 7px; }
+        .dia-btn { padding: 9px 4px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; user-select: none; transition: 0.15s; }
+        .dia-asiste { background-color: var(--amarillo); color: #000; border: 2px solid var(--amarillo-oscuro); }
+        .dia-falta { background-color: #FAFAFA; color: #9E9E9E; border: 2px dashed #CFCFCF; }
+
+        /* ===================== GRILLAS SEMANALES ===================== */
+        .titulo-grilla { margin: 18px 0 8px; font-size: 1rem; font-weight: bold; color: #fff; background: var(--negro); padding: 8px 12px; border-radius: 6px; border-left: 6px solid var(--amarillo); }
+        .semana-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; }
+        .dia-columna { min-width: 142px; border: 1px solid var(--gris-linea); border-radius: 8px; overflow: hidden; background-color: #FAFAFA; }
+        .dia-titulo { background-color: var(--negro); color: var(--amarillo); text-align: center; padding: 8px; font-weight: bold; font-size: 0.85rem; }
+        .turno-bloque { padding: 8px 5px; border-bottom: 1px solid var(--gris-linea); font-size: 0.72rem; text-align: center; color: #fff; font-weight: bold; line-height: 1.25; }
+
+        .bg-morado { background-color: var(--morado); }
+        .bg-verde { background-color: var(--verde); cursor: pointer; }
+        .bg-mia { background-color: var(--naranja); cursor: pointer; border: 2px solid #E65100; }
+        .bg-fija { background-color: var(--fijo); cursor: pointer; border: 2px solid #0288D1; }
+        .bg-vacio { background-color: #E6E6E6; color: #8A8A8A; }
+        .bg-elegida { background-color: var(--amarillo); color: #000; border: 2px solid var(--negro); cursor: pointer; }
+        /* LISTA DE ESPERA = BLANCO */
+        .bg-espera { background-color: var(--espera); color: #444; border: 2px dashed #9E9E9E; }
+        .bg-espera-otra { background-color: var(--espera); color: #9E9E9E; border: 1px dashed #D5D5D5; }
+
+        /* ===================== BARRA DE GUARDADO ===================== */
+        #barra-guardar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--negro); padding: 12px 16px; z-index: 200;
+            display: none; box-shadow: 0 -4px 14px rgba(0,0,0,0.3);
+            border-top: 3px solid var(--amarillo);
+        }
+        #barra-guardar.visible { display: block; }
+        #btn-guardar { width: 100%; background: var(--amarillo); color: #000; border: none; padding: 15px; border-radius: 8px; font-size: 1.02rem; font-weight: bold; cursor: pointer; }
+        #btn-guardar:disabled { background: #7A7A7A; color: #DDD; cursor: wait; }
+        #texto-pendiente { color: var(--amarillo); font-size: 0.75rem; text-align: center; margin-bottom: 8px; font-weight: bold; }
+
+        .btn-salir { width: 100%; background-color: var(--negro); color: #fff; padding: 14px; border: 2px solid #444; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px; }
+
+        /* ===================== AVISOS ===================== */
+        #toast { visibility: hidden; min-width: 260px; max-width: 90%; background-color: var(--negro); color: var(--amarillo); text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 9999; left: 50%; bottom: 100px; transform: translateX(-50%); font-weight: bold; opacity: 0; transition: opacity 0.35s, bottom 0.35s; border: 2px solid var(--amarillo); }
+        #toast.show { visibility: visible; opacity: 1; bottom: 120px; }
+        #toast.exito { background-color: var(--verde); color: #fff; border-color: #2E7D32; }
+        #toast.error { background-color: var(--rojo); color: #fff; border-color: #B71C1C; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; text-align: center; border-top: 6px solid var(--amarillo); }
+        .modal-content h3 { margin-bottom: 12px; }
+        .btn-modal-rojo { background: var(--rojo); color: white; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
+        .btn-modal-gris { background: #E0E0E0; color: #333; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
+        .lista-avisos { text-align: left; max-height: 300px; overflow-y: auto; }
+        .aviso-item { background: #FFFDF0; border-left: 5px solid var(--amarillo); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.86rem; }
     </style>
 </head>
 <body>
 
-    <div id="toast-msg">Guardado</div>
+    <div id="toast">Guardado</div>
 
     <header>
         <div class="header-info">
@@ -80,12 +160,15 @@
             <p id="lbl-jornada">Jornada</p>
         </div>
         <div class="header-actions">
-            <button class="btn-entregar" id="btn-entregar-header" onclick="entregarCuarto()">Entregar Cuarto</button>
+            <button class="btn-entregar" id="btn-entregar" onclick="marcarEntregaCuarto()">Entregar Cuarto</button>
+            <button class="btn-campana" id="btn-campana" onclick="abrirAvisos()">
+                🔔<span class="punto-campana" id="punto-campana">0</span>
+            </button>
         </div>
     </header>
 
     <div class="container">
-        <!-- TABLA DEL DÍA -->
+        <!-- ================= CUARTOS DE HOY ================= -->
         <div class="card">
             <div class="card-header">
                 <span class="fecha-hoy" id="fecha-actual">Cargando...</span>
@@ -95,419 +178,643 @@
                     <option value="Noche">ROOM NOCHE (8 PM - 7 AM)</option>
                 </select>
             </div>
-            <div id="tabla-rooms"><p style="text-align: center;">Conectando...</p></div>
+            <div id="tabla-rooms"><p style="text-align:center;">Conectando...</p></div>
         </div>
 
-        <!-- STATUS SEMANAL -->
+        <!-- ================= STATUS SEMANAL ================= -->
         <div class="card">
-            <div class="card-header" style="justify-content: space-between; align-items: center; border-bottom: none;">
-                <h2 style="font-size: 1.25rem; margin: 0; color: #333;">
-                    STATUS SEMANAL 
-                    <span id="rango-fechas-semana" style="font-size: 1rem; color: #666; font-weight: normal; margin-left: 5px;"></span>
+            <div class="card-header">
+                <h2 style="font-size:1.2rem; margin:0;">
+                    STATUS SEMANAL
+                    <span id="rango-fechas" style="font-size:0.9rem; color:#666; font-weight:normal;"></span>
                 </h2>
-                <button id="btn-toggle-semana" class="btn-agendar-amarillo" style="display:none;" onclick="toggleAgendamiento()">📅 AGENDAR PRÓXIMA SEMANA</button>
+                <button id="btn-toggle-semana" class="btn-amarillo" style="display:none;" onclick="alternarSemana()">📅 AGENDAR PRÓXIMA SEMANA</button>
             </div>
-            
+
             <div class="leyenda">
-                <span><div class="caja-color" style="background:var(--primary);"></div> Libre</span>
-                <span><div class="caja-color" style="background:var(--purple);"></div> Ocupado</span>
-                <span><div class="caja-color" style="background:var(--warning);"></div> Tu Turno</span>
+                <span><div class="caja-color" style="background:var(--verde);"></div> Libre</span>
+                <span><div class="caja-color" style="background:var(--morado);"></div> Ocupado</span>
+                <span><div class="caja-color" style="background:var(--naranja);"></div> Tu turno</span>
                 <span><div class="caja-color" style="background:var(--fijo);"></div> Fijo</span>
-                <span><div class="caja-color" style="background:#9e9e9e;"></div> Espera</span>
+                <span><div class="caja-color" style="background:#FFF;"></div> En espera</span>
             </div>
 
-            <!-- SELECTOR CENTRAL -->
-            <div id="contenedor-filtro-semana" style="text-align: center; margin-bottom: 15px;">
-                <select id="sel-jornada-semana" class="dropdown-jornada" style="background: var(--info); color: white; padding: 8px 15px; border-radius: 6px; display: inline-block;" onchange="renderizarSemana()">
-                    <option value="Mañana">☀️ MOSTRANDO JORNADA: MAÑANA ▼</option>
-                    <option value="Tarde">🌇 MOSTRANDO JORNADA: TARDE ▼</option>
-                    <option value="Noche">🌙 MOSTRANDO JORNADA: NOCHE ▼</option>
-                </select>
-            </div>
-
-            <!-- PANEL PRE-AGENDAMIENTO -->
-            <div id="pre-agendamiento-container" style="display: none;">
-                <h3 style="color: #e65100; margin-bottom: 5px;">📅 Programación Próxima Semana</h3>
-                
-                <label class="chk-container">
-                    <input type="checkbox" id="chk-doble" onclick="actualizarInterfazDobleTurno(true)"> 
-                    <span id="lbl-opcional-doble">¿Harás Doble Turno extra?</span>
-                    <span id="lbl-obligatorio-doble" style="display:none; color: #d32f2f;">Doble Jornada (Obligatorio)</span>
-                </label>
-
-                <div id="div-sel-doble" style="display:none; margin-bottom:15px;">
-                    <select id="sel-tipo-doble" style="padding: 10px; width: 100%;" onchange="actualizarInterfazDobleTurno(true)">
-                        <option value="Mañana-Tarde">MAÑANA - TARDE</option>
-                        <option value="Tarde-Noche">TARDE - NOCHE</option>
-                        <option value="Noche-Mañana">NOCHE - MAÑANA</option>
-                    </select>
-                </div>
-                
-                <div id="alerta-lista-espera" class="alerta-espera"></div>
-
-                <h4 id="lbl-jor-1" style="color:#333; margin-bottom:8px;">Jornada Principal: </h4>
-                <div id="grid-dias-1" class="grid-dias"></div>
-
-                <div id="contenedor-jor-2" style="display:none; background: #ffebee; padding: 10px; border-radius: 8px; border: 1px solid #ffcdd2;">
-                    <h4 id="lbl-jor-2" style="color:#c62828; margin-bottom:3px;">Jornada Secundaria: </h4>
-                    <p style="font-size: 0.75rem; color: #d32f2f; margin-bottom: 10px; font-weight: bold;">⚠️ Por defecto estás AUSENTE. Toca los días que SÍ vas a venir.</p>
-                    <div id="grid-dias-2" class="grid-dias"></div>
-                </div>
-
-                <div id="caja-motivo" style="display: none; margin-bottom: 5px; margin-top: 15px;">
-                    <textarea id="pre-motivo" style="width: 100%; padding: 10px;" placeholder="Motivo de tus faltas..." rows="2" oninput="triggerAutoSave()"></textarea>
+            <!-- PANEL DE PRE-AGENDAMIENTO -->
+            <div id="pre-agendamiento" style="display:none;">
+                <h3>📅 Programación de la próxima semana</h3>
+                <div class="aviso-doble" id="aviso-perfil"></div>
+                <div id="bloques-jornadas"></div>
+                <div id="caja-motivo" style="margin-top:12px;">
+                    <textarea id="pre-motivo" style="width:100%; padding:10px; border:2px solid var(--gris-linea); border-radius:6px;" placeholder="Observaciones para el monitor (opcional)" rows="2"></textarea>
                 </div>
             </div>
 
-            <!-- CONTENEDOR MAESTRO DE GRILLAS -->
-            <div id="contenedor-grillas-maestro"></div>
-            
-            <button class="btn-logout-bottom" onclick="cerrarSesion()">🚪 SALIR</button>
+            <div id="grillas"></div>
+
+            <button class="btn-salir" onclick="cerrarSesion()">🚪 SALIR</button>
         </div>
     </div>
 
-    <!-- MODAL LIBERACIÓN -->
+    <!-- BARRA DE GUARDADO -->
+    <div id="barra-guardar">
+        <div id="texto-pendiente"></div>
+        <button id="btn-guardar" onclick="guardarCambios()">Guardar</button>
+    </div>
+
+    <!-- MODAL LIBERAR -->
     <div class="modal-overlay" id="modal-liberar">
         <div class="modal-content">
-            <h3>⚠️ Liberar Turno</h3>
-            <p id="texto-turno-liberar"></p>
-            <textarea id="motivo-liberacion" style="width:100%; padding:10px; margin-bottom:15px;" placeholder="Motivo (Obligatorio)" rows="2"></textarea>
-            <button class="btn-modal-liberar" id="btn-confirmar-liberar" onclick="confirmarLiberacion()">Liberar y Enviar</button>
-            <button class="btn-modal-cancelar" onclick="cerrarModal()">Cancelar</button>
+            <h3>⚠️ Liberar turno</h3>
+            <p id="texto-liberar" style="margin-bottom:12px;"></p>
+            <textarea id="motivo-liberacion" style="width:100%; padding:10px; margin-bottom:15px; border:2px solid var(--gris-linea); border-radius:6px;" placeholder="Motivo (obligatorio)" rows="2"></textarea>
+            <button class="btn-modal-rojo" onclick="confirmarLiberacion()">Liberar y enviar</button>
+            <button class="btn-modal-gris" onclick="cerrarModal('modal-liberar')">Cancelar</button>
         </div>
     </div>
 
-    <script>
-        const API_URL = "https://api-v03l.onrender.com";
-        const modeloActual = localStorage.getItem('modelo_actual') || "";
-        const baseJornadaActual = localStorage.getItem('jornada_actual') || "Mañana";
-        if (!modeloActual) window.location.href = "https://paradise-go1a.onrender.com"; 
+    <!-- MODAL AVISOS -->
+    <div class="modal-overlay" id="modal-avisos">
+        <div class="modal-content">
+            <h3>🔔 Avisos</h3>
+            <div class="lista-avisos" id="lista-avisos"></div>
+            <button class="btn-modal-gris" style="margin-top:10px;" onclick="cerrarAvisos()">Entendido</button>
+        </div>
+    </div>
 
-        document.getElementById('lbl-nombre').textContent = modeloActual;
-        document.getElementById('lbl-jornada').textContent = `Jornada: ${baseJornadaActual}`;
+<script>
+/* =========================================================================
+   PARADISE — Gestión de turnos de las modelos
+   -------------------------------------------------------------------------
+   CAMBIOS DE FONDO FRENTE A LA VERSIÓN ANTERIOR
 
-        function cerrarSesion() { 
-            localStorage.clear(); 
-            window.location.href = "https://paradise-go1a.onrender.com"; 
+   1. SE ACABÓ EL AUTO-GUARDADO. Antes cualquier toque disparaba un POST
+      medio segundo después. Ahora todo se acumula y se envía con un botón
+      cuyo texto dice EXACTAMENTE qué se va a guardar.
+
+   2. DÍAS AL REVÉS. Antes se marcaban los días que NO venía y se asumía el
+      resto. Ahora arranca ausente y marca los días que SÍ viene: un olvido
+      ya no la compromete a una semana entera.
+
+   3. LAS TRES JORNADAS, SIEMPRE. Se acabó el selector de una sola jornada.
+
+   4. DOBLE JORNADA CON PAREJA FIJA. La elige el monitor, no la modelo. En
+      esas dos tiene el cupo asegurado; en la tercera va a lista de espera.
+
+   5. LISTA DE ESPERA EN BLANCO, con el número de oficiales que faltan por
+      programarse y la hora exacta de confirmación.
+   ========================================================================= */
+
+const API_URL = "https://api-v03l.onrender.com";
+const URL_LOGIN = "https://paradise-go1a.onrender.com";
+
+const modeloActual = localStorage.getItem('modelo_actual') || "";
+const jornadaBase = localStorage.getItem('jornada_actual') || "Mañana";
+if (!modeloActual) window.location.href = URL_LOGIN;
+
+const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const JORNADAS = ['Mañana', 'Tarde', 'Noche'];
+const TOTAL_CUARTOS = 12;
+const HORA_CONFIRMACION = "12:00:01 PM del sábado";
+
+document.getElementById('lbl-nombre').textContent = modeloActual;
+document.getElementById('lbl-jornada').textContent = `Jornada: ${jornadaBase}`;
+
+/* ---------------------------------------------------------------- Estado */
+let cuartosFisicos = [];
+let semanaActual = {}, semanaProxima = {};
+let perfiles = {}, faltantes = {}, conteoOficiales = {}, cuposLibres = {};
+let seleccionesPrevias = {};
+let viendoProxima = false;
+let perfilCargado = false;
+
+// Días marcados por jornada. Por defecto NADA: está ausente.
+let diasMarcados = { "Mañana": [], "Tarde": [], "Noche": [] };
+
+/* Cambios pendientes de guardar. Tres tipos, con su etiqueta. */
+let pendiente = {
+    cuarto: null,        // { room, estado, jornada }
+    statusActual: [],    // [{ dia, jornada, room }]
+    programacion: false  // true si tocó los días
+};
+
+/* ------------------------------------------------------------ Utilidades */
+const hoy = new Date();
+document.getElementById('fecha-actual').textContent =
+    hoy.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+const nombreDiaHoy = DIAS[hoy.getDay()];
+let diaIso = hoy.getDay(); if (diaIso === 0) diaIso = 7;
+const horaH = hoy.getHours();
+
+let jornadaDetectada = "Noche";
+if (horaH >= 7 && horaH < 13) jornadaDetectada = "Mañana";
+else if (horaH >= 13 && horaH < 20) jornadaDetectada = "Tarde";
+document.getElementById('filtro-jornada-hoy').value = jornadaDetectada;
+
+// Jueves y viernes completos; el sábado hasta las 11:59:59 AM.
+const faseAbierta = (diaIso === 4) || (diaIso === 5) || (diaIso === 6 && horaH < 12);
+if (faseAbierta) document.getElementById('btn-toggle-semana').style.display = 'block';
+
+function cerrarSesion() { localStorage.removeItem('modelo_actual'); localStorage.removeItem('jornada_actual'); window.location.href = URL_LOGIN; }
+function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+
+function mostrarToast(mensaje, tipo) {
+    const t = document.getElementById("toast");
+    t.textContent = mensaje;
+    t.className = "show " + (tipo || "");
+    setTimeout(() => { t.className = t.className.replace("show", "").trim(); }, 2600);
+}
+
+function actualizarRangoFechas() {
+    const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    const fmt = (d) => `${String(d.getDate()).padStart(2,'0')}/${meses[d.getMonth()]}`;
+    let ref = new Date(hoy);
+    if (viendoProxima) ref.setDate(hoy.getDate() + 7);
+    let inicio = new Date(ref); inicio.setDate(ref.getDate() - ref.getDay());
+    let fin = new Date(inicio); fin.setDate(inicio.getDate() + 6);
+    document.getElementById('rango-fechas').textContent = `${fmt(inicio)} - ${fmt(fin)}`;
+}
+actualizarRangoFechas();
+
+/* ============================================================ PERFIL
+   Qué jornadas tiene aseguradas esta modelo. Es el corazón de la regla
+   nueva: la pareja la pone el monitor y aquí solo se lee.
+   ================================================================= */
+function miPerfil() { return perfiles[modeloActual] || {}; }
+
+function jornadasOficiales() {
+    const p = miPerfil();
+    if (Array.isArray(p.jornadas_oficiales) && p.jornadas_oficiales.length) return p.jornadas_oficiales;
+    const tipo = p.doble_jornada_tipo || "";
+    if (tipo) return tipo.split('-').filter(j => JORNADAS.includes(j));
+    if (p.doble_jornada) return [...JORNADAS];
+    return JORNADAS.includes(p.jornada) ? [p.jornada] : [];
+}
+
+function esOficialEn(jornada) { return jornadasOficiales().includes(jornada); }
+
+function textoPerfil() {
+    const p = miPerfil();
+    const tipo = p.doble_jornada_tipo || "";
+    const cierre = `Puedes marcar también en otra jornada, pero solo sabrás si quedaste a partir de las <b>${HORA_CONFIRMACION}</b>.`;
+
+    if (tipo) {
+        const [a, b] = tipo.split('-');
+        let extra = "";
+        if (tipo === "Noche-Mañana") {
+            extra = " Recuerda que la <b>noche</b> de un día empalma con la <b>mañana del día siguiente</b>: al marcar una noche se marca sola la mañana siguiente.";
         }
-        
-        function mostrarToast(msg) {
-            const t = document.getElementById("toast-msg");
-            t.textContent = msg; t.className = "show";
-            setTimeout(() => { t.className = t.className.replace("show", "").trim(); }, 2000);
+        return `Eres de <b>doble jornada ${a} y ${b}</b>, lo cual te asegura un cupo en esas dos jornadas.${extra} ${cierre}`;
+    }
+    if (JORNADAS.includes(p.jornada)) {
+        return `Tu jornada oficial es <b>${p.jornada}</b>: ahí tienes el cupo asegurado. ${cierre}`;
+    }
+    return `Eres <b>Satélite</b>: no tienes cupo asegurado en el estudio, pero puedes programarte en cualquier jornada. Entrarás si queda algún cupo sin usar. ${cierre}`;
+}
+
+/* ============================================ PANEL DE PRE-AGENDAMIENTO */
+function alternarSemana() {
+    viendoProxima = !viendoProxima;
+    const btn = document.getElementById('btn-toggle-semana');
+    if (viendoProxima) {
+        btn.textContent = "⬅️ VOLVER A SEMANA ACTUAL";
+        btn.className = "btn-negro";
+        document.getElementById('pre-agendamiento').style.display = 'block';
+    } else {
+        btn.textContent = "📅 AGENDAR PRÓXIMA SEMANA";
+        btn.className = "btn-amarillo";
+        document.getElementById('pre-agendamiento').style.display = 'none';
+    }
+    actualizarRangoFechas();
+    renderizarTodo();
+}
+
+function renderizarBloquesJornadas() {
+    document.getElementById('aviso-perfil').innerHTML = textoPerfil();
+    const cont = document.getElementById('bloques-jornadas');
+    cont.innerHTML = '';
+
+    JORNADAS.forEach(jornada => {
+        const oficial = esOficialEn(jornada);
+        const totalOficiales = conteoOficiales[jornada] || 0;
+        const pendientesJor = faltantes[jornada] || 0;
+
+        let nota;
+        if (oficial) {
+            nota = `<div class="nota-jornada">Cupo asegurado. Marca los días que vendrás.</div>`;
+        } else {
+            nota = `<div class="nota-jornada nota-espera">
+                        Quedarás en <b>lista de espera</b> (color blanco).
+                        La jornada ${jornada} tiene <b>${totalOficiales} modelos oficiales</b>
+                        y <b>${pendientesJor}</b> aún no se han programado.
+                        Tu cupo se confirma el ${HORA_CONFIRMACION}.
+                    </div>`;
         }
 
-        const hoy = new Date();
-        document.getElementById('fecha-actual').textContent = hoy.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        
-        let diaIso = hoy.getDay(); if (diaIso === 0) diaIso = 7; 
-        const horaH = hoy.getHours();
-        
-        let jornadaDetectada = "Noche";
-        if (horaH >= 7 && horaH < 13) jornadaDetectada = "Mañana";
-        else if (horaH >= 13 && horaH < 20) jornadaDetectada = "Tarde";
-        document.getElementById('filtro-jornada-hoy').value = jornadaDetectada;
-        document.getElementById('sel-jornada-semana').value = jornadaDetectada;
+        let dias = '';
+        DIAS.forEach(dia => {
+            const viene = diasMarcados[jornada].includes(dia);
+            dias += `<div class="dia-btn ${viene ? 'dia-asiste' : 'dia-falta'}"
+                          onclick="alternarDia('${jornada}','${dia}')">
+                        ${dia}<br><small>${viene ? 'VENDRÉ' : 'AUSENTE'}</small>
+                     </div>`;
+        });
 
-        const esFaseAbierta = (diaIso === 4) || (diaIso === 5) || (diaIso === 6 && horaH < 12);
-        if (esFaseAbierta) document.getElementById('btn-toggle-semana').style.display = 'block';
+        cont.innerHTML += `
+            <div class="bloque-jornada ${oficial ? 'oficial' : 'espera'}">
+                <div class="titulo-jornada">
+                    <span>Jornada ${jornada}</span>
+                    <span class="${oficial ? 'etiqueta-oficial' : 'etiqueta-espera'}">
+                        ${oficial ? '✔ CUPO ASEGURADO' : '⏳ LISTA DE ESPERA'}
+                    </span>
+                </div>
+                ${nota}
+                <div class="grid-dias">${dias}</div>
+            </div>`;
+    });
+}
 
-        let cuartosFisicos = [];
-        let datosSemanaActual = {}; let datosProximaSemana = {}; 
-        let perfilesModelos = {}; let faltantesGlobales = {}; let seleccionesPrevias = {};
-        const nombreDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        const nombreDiaHoy = nombreDias[hoy.getDay()];
-        
-        let jorPre1 = baseJornadaActual; let jorPre2 = "";
-        let diasAusente1 = []; let diasAusente2 = [...nombreDias]; 
-        let timerAutoSave = null; let viendoProximaSemana = false; let perfilInicializado = false;
+function alternarDia(jornada, dia) {
+    const lista = diasMarcados[jornada];
+    const i = lista.indexOf(dia);
+    if (i >= 0) lista.splice(i, 1); else lista.push(dia);
 
-        function actualizarRangoFechas() {
-            const formatearFecha = (d) => {
-                const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
-                return `${String(d.getDate()).padStart(2, '0')}/${meses[d.getMonth()]}`;
-            };
-            
-            let fechaReferencia = new Date(hoy);
-            if (viendoProximaSemana) {
-                fechaReferencia.setDate(hoy.getDate() + 7);
-            }
-            
-            let diaSemana = fechaReferencia.getDay();
-            let inicioSemana = new Date(fechaReferencia);
-            inicioSemana.setDate(fechaReferencia.getDate() - diaSemana);
-            
-            let finSemana = new Date(inicioSemana);
-            finSemana.setDate(inicioSemana.getDate() + 6);
-            
-            document.getElementById('rango-fechas-semana').textContent = `${formatearFecha(inicioSemana)} - ${formatearFecha(finSemana)}`;
-        }
-        
-        actualizarRangoFechas();
+    // "Noche-Mañana" cruza el día: la noche del lunes empalma con la mañana
+    // del MARTES. Se marca sola, y la modelo puede quitarla si no le sirve.
+    if ((miPerfil().doble_jornada_tipo || "") === "Noche-Mañana" && jornada === "Noche") {
+        const siguiente = DIAS[(DIAS.indexOf(dia) + 1) % 7];
+        const manana = diasMarcados["Mañana"];
+        const j = manana.indexOf(siguiente);
+        if (i >= 0) { if (j >= 0) manana.splice(j, 1); }
+        else if (j < 0) { manana.push(siguiente); }
+    }
 
-        function toggleAgendamiento() {
-            viendoProximaSemana = !viendoProximaSemana;
-            const btn = document.getElementById('btn-toggle-semana');
-            const contPre = document.getElementById('pre-agendamiento-container');
-            const selCentral = document.getElementById('contenedor-filtro-semana');
-            
-            if(viendoProximaSemana) {
-                btn.textContent = "⬅️ VOLVER A SEMANA ACTUAL"; btn.classList.replace('btn-agendar-amarillo', 'btn-volver-azul');
-                contPre.style.display = 'block'; selCentral.style.display = 'none'; 
-                
-                triggerAutoSave();
+    pendiente.programacion = true;
+    renderizarBloquesJornadas();
+    renderizarGrillas();
+    actualizarBarraGuardar();
+}
+
+/* ====================================================== CUARTOS DE HOY */
+function renderizarCuartosHoy() {
+    const jorSel = document.getElementById('filtro-jornada-hoy').value;
+    const cont = document.getElementById('tabla-rooms');
+    cont.innerHTML = '';
+
+    if (jorSel === jornadaDetectada) {
+        cuartosFisicos.forEach(c => {
+            const elegida = pendiente.cuarto && pendiente.cuarto.room === c.room && pendiente.cuarto.estado === "OCUPADA";
+            let clase, texto, click = "";
+
+            if (elegida) {
+                clase = "estado-elegida"; texto = "✓ SIN GUARDAR";
+                click = `onclick="quitarCuartoPendiente()"`;
+            } else if (c.estado === "OCUPADA") {
+                clase = "estado-ocupada"; texto = c.estado;
+            } else if (c.estado === "DE SALIDA") {
+                clase = "estado-salida"; texto = c.estado;
+            } else if (c.estado === "DISPONIBLE") {
+                clase = "estado-disponible"; texto = "✋ TOMAR";
+                click = `onclick="marcarTomaCuarto(${c.room}, '${jorSel}')"`;
             } else {
-                btn.textContent = "📅 AGENDAR PRÓXIMA SEMANA"; btn.classList.replace('btn-volver-azul', 'btn-agendar-amarillo');
-                contPre.style.display = 'none'; selCentral.style.display = 'block';
+                clase = "estado-neutro"; texto = c.estado;
             }
-            
-            actualizarRangoFechas(); 
-            renderizarSemana();
-        }
 
-        function actualizarInterfazDobleTurno(desdeUsuario = false) {
-            const isDoble = document.getElementById('chk-doble').checked;
-            document.getElementById('div-sel-doble').style.display = isDoble ? 'block' : 'none';
-            document.getElementById('contenedor-jor-2').style.display = isDoble ? 'block' : 'none';
-            
-            const miPerfil = perfilesModelos[modeloActual] || {};
-            
-            if(isDoble) {
-                const partes = document.getElementById('sel-tipo-doble').value.split('-');
-                jorPre1 = partes[0]; jorPre2 = partes[1];
-                
-                if (!miPerfil.doble_jornada) {
-                    const cant = faltantesGlobales[jorPre2] || 0;
-                    document.getElementById('alerta-lista-espera').innerHTML = `⚠️ <b>Lista de Espera:</b> Aún faltan <b>${cant} cupos</b> por programar en la <b>${jorPre2}</b>. Quedarás en <span style="color:#9e9e9e; font-weight:bold;">Gris/Neutro</span>. El sábado después de las 12 PM sabrás si quedaste.`;
-                    document.getElementById('alerta-lista-espera').style.display = 'block';
+            const nombreVisible = elegida ? modeloActual : (c.nombre || "");
+            cont.innerHTML += `<div class="room-row"><div class="r-num">${c.room}</div><div class="r-name">${nombreVisible}</div><div class="r-state ${clase}" ${click}>${texto}</div></div>`;
+        });
+    } else {
+        for (let i = 1; i <= TOTAL_CUARTOS; i++) {
+            const raw = (semanaActual[nombreDiaHoy] && semanaActual[nombreDiaHoy][jorSel] && semanaActual[nombreDiaHoy][jorSel][String(i)]) || "";
+            const nom = raw.split("::")[0];
+            cont.innerHTML += `<div class="room-row"><div class="r-num">${i}</div><div class="r-name" style="color:${nom ? '#444' : '#AAA'}">${nom || "---"}</div><div class="r-state ${nom ? "estado-ocupada" : "estado-neutro"}">${nom ? "PROGRAMADA" : "CUPO"}</div></div>`;
+        }
+    }
+}
+
+function marcarTomaCuarto(room, jornada) {
+    pendiente.cuarto = { room: room, estado: "OCUPADA", jornada: jornada };
+    renderizarCuartosHoy();
+    actualizarBarraGuardar();
+}
+
+function quitarCuartoPendiente() {
+    pendiente.cuarto = null;
+    renderizarCuartosHoy();
+    actualizarBarraGuardar();
+}
+
+function marcarEntregaCuarto() {
+    const mio = cuartosFisicos.find(c => c.nombre === modeloActual && (c.estado === "OCUPADA" || c.estado === "DE SALIDA"));
+    if (!mio) return mostrarToast("No tienes ningún cuarto a tu nombre.", "error");
+    pendiente.cuarto = { room: mio.room, estado: "DISPONIBLE", jornada: document.getElementById('filtro-jornada-hoy').value };
+    mostrarToast("Marcado para entregar. Pulsa Guardar.");
+    actualizarBarraGuardar();
+}
+
+/* ======================================================= GRILLAS SEMANA */
+function hayCupoElegido(dia, jornada, room) {
+    return pendiente.statusActual.some(c => c.dia === dia && c.jornada === jornada && c.room === room);
+}
+
+function generarGrilla(bd, jornada, modo) {
+    let html = '<div class="semana-scroll">';
+    DIAS.forEach(dia => {
+        html += `<div class="dia-columna"><div class="dia-titulo">${dia}</div>`;
+        for (let i = 1; i <= TOTAL_CUARTOS; i++) {
+            const raw = (bd[dia] && bd[dia][jornada] && bd[dia][jornada][String(i)]) || "";
+            const ocupante = raw.split("::")[0];
+            const enEspera = raw.includes("::PENDIENTE");
+            const perfil = perfiles[ocupante] || {};
+            const esFija = String(perfil.cuarto_fijo) === String(i);
+            const prefijo = esFija ? `R${i}: ` : "";
+
+            if (hayCupoElegido(dia, jornada, i)) {
+                html += `<div class="turno-bloque bg-elegida" onclick="quitarCupoElegido('${dia}','${jornada}',${i})">✓ SIN GUARDAR</div>`;
+                continue;
+            }
+
+            if (ocupante === modeloActual) {
+                if (enEspera) {
+                    html += `<div class="turno-bloque bg-espera">TÚ (en espera)</div>`;
+                } else if (esFija) {
+                    html += `<div class="turno-bloque bg-fija" onclick="abrirModalLiberar('${dia}','${jornada}',${i})">${prefijo}TÚ (FIJA)</div>`;
                 } else {
-                    document.getElementById('alerta-lista-espera').style.display = 'none';
+                    html += `<div class="turno-bloque bg-mia" onclick="abrirModalLiberar('${dia}','${jornada}',${i})">TÚ</div>`;
+                }
+            } else if (ocupante) {
+                if (enEspera) {
+                    html += `<div class="turno-bloque bg-espera-otra">${ocupante.toUpperCase()} (espera)</div>`;
+                } else if (esFija) {
+                    html += `<div class="turno-bloque bg-fija">${prefijo}${ocupante.toUpperCase()}</div>`;
+                } else {
+                    html += `<div class="turno-bloque bg-morado">${ocupante.toUpperCase()}</div>`;
                 }
             } else {
-                jorPre1 = miPerfil.jornada || baseJornadaActual; jorPre2 = ""; 
-                if(desdeUsuario) diasAusente2 = [...nombreDias]; 
-                document.getElementById('alerta-lista-espera').style.display = 'none';
+                if (modo === "proxima") {
+                    html += `<div class="turno-bloque bg-vacio">VACÍO</div>`;
+                } else {
+                    html += `<div class="turno-bloque bg-verde" onclick="marcarCupoActual('${dia}','${jornada}',${i})">➕ DISPONIBLE</div>`;
+                }
             }
-            
-            document.getElementById('lbl-jor-1').textContent = `Jornada Principal (${jorPre1}):`;
-            document.getElementById('lbl-jor-2').textContent = `Jornada Secundaria (${jorPre2}):`;
-            
-            renderizarDiasPreAgendamiento(); 
-            if(desdeUsuario) triggerAutoSave(); 
-            renderizarSemana();
         }
+        html += `</div>`;
+    });
+    return html + '</div>';
+}
 
-        function renderizarDiasPreAgendamiento() {
-            const c1 = document.getElementById('grid-dias-1'); c1.innerHTML = '';
-            const c2 = document.getElementById('grid-dias-2'); c2.innerHTML = '';
-            
-            nombreDias.forEach(dia => {
-                const asis1 = !diasAusente1.includes(dia);
-                c1.innerHTML += `<div class="dia-btn ${asis1 ? 'dia-asiste' : 'dia-falta'}" onclick="toggleDia(1, '${dia}')">${dia}<br><small>${asis1 ? 'ASISTIRÁ' : 'AUSENTE'}</small></div>`;
-                if(document.getElementById('chk-doble').checked) {
-                    const asis2 = !diasAusente2.includes(dia);
-                    c2.innerHTML += `<div class="dia-btn ${asis2 ? 'dia-asiste' : 'dia-falta'}" onclick="toggleDia(2, '${dia}')">${dia}<br><small>${asis2 ? 'ASISTIRÁ' : 'AUSENTE'}</small></div>`;
-                }
-            });
-            document.getElementById('caja-motivo').style.display = diasAusente1.length > 1 ? 'block' : 'none';
-        }
-        
-        function toggleDia(jornadaNum, dia) {
-            let lista = jornadaNum === 1 ? diasAusente1 : diasAusente2;
-            if (lista.includes(dia)) lista.splice(lista.indexOf(dia), 1); else lista.push(dia);
-            renderizarDiasPreAgendamiento(); triggerAutoSave();
-        }
+function renderizarGrillas() {
+    const cont = document.getElementById('grillas');
+    const bd = viendoProxima ? semanaProxima : semanaActual;
+    const modo = viendoProxima ? "proxima" : "actual";
 
-        function triggerAutoSave() {
-            if(!perfilInicializado) return;
-            clearTimeout(timerAutoSave);
-            timerAutoSave = setTimeout(async () => {
-                await enviarPreAgendamiento(); await cargarDatos();
-            }, 500); 
-        }
+    let html = '';
+    JORNADAS.forEach(jornada => {
+        const etiqueta = esOficialEn(jornada) ? '✔ cupo asegurado' : '⏳ lista de espera';
+        html += `<div class="titulo-grilla">${jornada.toUpperCase()} <span style="font-weight:normal; font-size:0.8rem; color:#CFCFCF;">· ${etiqueta}</span></div>`;
+        html += generarGrilla(bd, jornada, modo);
+    });
+    cont.innerHTML = html;
+}
 
-        async function cargarDatos() {
-            try {
-                const rC = await fetch(`${API_URL}/api/cuartos?t=${new Date().getTime()}`, { cache: 'no-store' });
-                const jC = await rC.json();
-                cuartosFisicos = Object.keys(jC.cuartos).map(k => ({ room: parseInt(k), nombre: jC.cuartos[k].nombre, estado: jC.cuartos[k].estado }));
+function marcarCupoActual(dia, jornada, room) {
+    if (viendoProxima) return;
+    pendiente.statusActual = pendiente.statusActual.filter(c => !(c.dia === dia && c.jornada === jornada));
+    pendiente.statusActual.push({ dia, jornada, room });
+    renderizarGrillas();
+    actualizarBarraGuardar();
+}
 
-                const tieneCuarto = cuartosFisicos.some(c => c.nombre === modeloActual && (c.estado === "DE SALIDA" || c.estado === "OCUPADA"));
-                document.getElementById('btn-entregar-header').style.display = tieneCuarto ? 'block' : 'none';
+function quitarCupoElegido(dia, jornada, room) {
+    pendiente.statusActual = pendiente.statusActual.filter(c => !(c.dia === dia && c.jornada === jornada && c.room === room));
+    renderizarGrillas();
+    actualizarBarraGuardar();
+}
 
-                const rS = await fetch(`${API_URL}/api/semana?t=${new Date().getTime()}`, { cache: 'no-store' });
-                const jS = await rS.json();
-                datosSemanaActual = jS.semana_actual; datosProximaSemana = jS.proxima_semana;
-                perfilesModelos = jS.perfiles || {}; faltantesGlobales = jS.faltantes || {};
-                seleccionesPrevias = jS.selecciones_previas || {};
+function renderizarTodo() {
+    if (viendoProxima) renderizarBloquesJornadas();
+    renderizarCuartosHoy();
+    renderizarGrillas();
+    actualizarBarraGuardar();
+}
 
-                if (!perfilInicializado) {
-                    const miPerfil = perfilesModelos[modeloActual] || {};
-                    const miHistorial = seleccionesPrevias[modeloActual];
+/* ================================================== BARRA DE GUARDADO
+   El texto del botón dice exactamente qué se va a guardar. Era lo que
+   pedía el estudio: antes se guardaba solo y nadie sabía cuándo.
+   ==================================================================== */
+function etiquetaGuardar() {
+    const tipos = [];
+    if (pendiente.cuarto) tipos.push("cuarto");
+    if (pendiente.statusActual.length) tipos.push("status");
+    if (pendiente.programacion) tipos.push("programacion");
 
-                    if (miHistorial) {
-                        jorPre1 = miHistorial.jor1 || baseJornadaActual;
-                        diasAusente1 = miHistorial.ausentes1 || [];
-                        if (miHistorial.es_doble) {
-                            document.getElementById('chk-doble').checked = true;
-                            jorPre2 = miHistorial.jor2 || "";
-                            diasAusente2 = miHistorial.ausentes2 || [];
-                            if (jorPre1 && jorPre2) document.getElementById('sel-tipo-doble').value = `${jorPre1}-${jorPre2}`;
-                        }
-                    } else {
-                        jorPre1 = miPerfil.jornada || baseJornadaActual;
-                        diasAusente1 = []; diasAusente2 = [...nombreDias];
-                    }
+    if (tipos.length === 0) return null;
+    if (tipos.length > 1) return { boton: "Guardar todos los cambios", nota: "Tienes varios cambios sin guardar." };
+    if (tipos[0] === "cuarto") {
+        const entrega = pendiente.cuarto.estado === "DISPONIBLE";
+        return {
+            boton: "Guardar Cambios en Cuarto",
+            nota: entrega ? `Vas a entregar el cuarto ${pendiente.cuarto.room}.`
+                          : `Vas a tomar el cuarto ${pendiente.cuarto.room} de hoy.`
+        };
+    }
+    if (tipos[0] === "status") {
+        return { boton: "Guardar Cambios en Status Actual",
+                 nota: `${pendiente.statusActual.length} cupo(s) de la semana publicada.` };
+    }
+    return { boton: "Guardar Programación", nota: "Programación de la próxima semana." };
+}
 
-                    if (miPerfil.doble_jornada === true) {
-                        document.getElementById('chk-doble').checked = true; document.getElementById('chk-doble').disabled = true;
-                        document.getElementById('lbl-opcional-doble').style.display = 'none'; document.getElementById('lbl-obligatorio-doble').style.display = 'inline';
-                    }
-                    
-                    actualizarInterfazDobleTurno(false);
-                    perfilInicializado = true;
-                }
-                
-                renderizarCuartosHoy(); renderizarSemana();
-            } catch (e) { console.error("Error conectando."); }
-        }
+function actualizarBarraGuardar() {
+    const barra = document.getElementById('barra-guardar');
+    const info = etiquetaGuardar();
+    if (!info) { barra.classList.remove('visible'); return; }
+    document.getElementById('btn-guardar').textContent = info.boton;
+    document.getElementById('texto-pendiente').textContent = info.nota;
+    barra.classList.add('visible');
+}
 
-        async function enviarPreAgendamiento() {
-            if(!esFaseAbierta) return mostrarToast("Fase Cerrada");
-            const isDoble = document.getElementById('chk-doble').checked;
-            await fetch(`${API_URL}/api/semana/pre_agendar`, {
+async function guardarCambios() {
+    const boton = document.getElementById('btn-guardar');
+    boton.disabled = true;
+    const textoOriginal = boton.textContent;
+    boton.textContent = "Guardando...";
+
+    try {
+        if (pendiente.cuarto) {
+            const r = await fetch(`${API_URL}/api/cuartos/actualizar`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre: modeloActual, jornada: jorPre1, dias_ausente: diasAusente1, es_doble: isDoble, jornada_2: jorPre2, dias_ausente_2: diasAusente2, motivo: document.getElementById('pre-motivo').value })
+                body: JSON.stringify({
+                    room: pendiente.cuarto.room,
+                    nombre: pendiente.cuarto.estado === "OCUPADA" ? modeloActual : "",
+                    estado: pendiente.cuarto.estado,
+                    jornada: pendiente.cuarto.jornada
+                })
             });
-            mostrarToast("💾 Auto-guardado");
+            if (!r.ok) throw new Error("No se pudo guardar el cuarto.");
         }
 
-        function renderizarCuartosHoy() {
-            const jorSel = document.getElementById('filtro-jornada-hoy').value;
-            const cont = document.getElementById('tabla-rooms'); cont.innerHTML = '';
-            if (jorSel === jornadaDetectada) {
-                cuartosFisicos.forEach(c => {
-                    let clase = c.estado === "OCUPADA" ? "estado-ocupada" : (c.estado === "DE SALIDA" ? "estado-salida" : "estado-disponible");
-                    let click = c.estado === "DISPONIBLE" ? `onclick="tomarTurnoHoy(${c.room}, '${jorSel}')"` : "";
-                    cont.innerHTML += `<div class="room-row"><div class="r-num">${c.room}</div><div class="r-name">${c.nombre}</div><div class="r-state ${clase}" ${click}>${c.estado === "DISPONIBLE" ? "✋ TOMAR" : c.estado}</div></div>`;
+        for (const cupo of pendiente.statusActual) {
+            const r = await fetch(`${API_URL}/api/semana/tomar_cupo`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: modeloActual, dia: cupo.dia, jornada: cupo.jornada, room: cupo.room, tipo_semana: "actual" })
+            });
+            if (!r.ok) {
+                const detalle = await r.json().catch(() => ({}));
+                throw new Error(detalle.detail || "Un cupo ya no estaba libre.");
+            }
+        }
+
+        if (pendiente.programacion) {
+            const r = await fetch(`${API_URL}/api/semana/pre_agendar`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: modeloActual, dias: diasMarcados, motivo: document.getElementById('pre-motivo').value })
+            });
+            if (!r.ok) throw new Error("La fase de programación está cerrada.");
+        }
+
+        pendiente = { cuarto: null, statusActual: [], programacion: false };
+        mostrarToast("✅ ¡Cambios guardados correctamente!", "exito");
+        await cargarDatos();
+    } catch (e) {
+        mostrarToast("⚠️ " + e.message, "error");
+        boton.textContent = textoOriginal;
+    } finally {
+        boton.disabled = false;
+    }
+}
+
+/* ============================================================== AVISOS
+   La campana NO necesita ninguna colección nueva ni ningún proceso en
+   segundo plano: si la modelo está en espera en una jornada y ahí aparece
+   un cupo vacío, eso ES el aviso. Se calcula con los datos que la página
+   ya descarga cada minuto.
+   ==================================================================== */
+let avisos = [];
+
+function calcularAvisos() {
+    avisos = [];
+    const vistos = JSON.parse(localStorage.getItem('avisos_vistos') || '[]');
+
+    [["proxima", semanaProxima], ["actual", semanaActual]].forEach(([modo, bd]) => {
+        JORNADAS.forEach(jornada => {
+            DIAS.forEach(dia => {
+                const cuartos = (bd[dia] && bd[dia][jornada]) || {};
+                let enEspera = false, libres = 0;
+                Object.values(cuartos).forEach(valor => {
+                    if (valor === "") libres++;
+                    else if (valor.includes("::PENDIENTE") && valor.split("::")[0] === modeloActual) enEspera = true;
                 });
-            } else {
-                for (let i = 1; i <= 12; i++) {
-                    let nom = datosSemanaActual[nombreDiaHoy]?.[jorSel]?.[i.toString()] || "";
-                    cont.innerHTML += `<div class="room-row"><div class="r-num">${i}</div><div class="r-name" style="color: ${nom ? '#444' : '#999'}">${nom || "---"}</div><div class="r-state ${nom ? "estado-ocupada" : "estado-neutro"}">${nom ? "PROGRAMADA" : "CUPO"}</div></div>`;
+                if (enEspera && libres > 0) {
+                    const clave = `${modo}|${jornada}|${dia}|${libres}`;
+                    avisos.push({
+                        clave: clave,
+                        nuevo: !vistos.includes(clave),
+                        texto: `Se desocupó un cupo en <b>${jornada}</b> del <b>${dia}</b> (${modo === "proxima" ? "próxima semana" : "semana actual"}). Estás en lista de espera para esa jornada.`
+                    });
                 }
-            }
-        }
-
-        async function entregarCuarto() {
-            let c = cuartosFisicos.find(c => c.nombre === modeloActual && (c.estado === "DE SALIDA" || c.estado === "OCUPADA"));
-            if (!c) return alert("No tienes cuartos a tu nombre aquí.");
-            await fetch(`${API_URL}/api/cuartos/actualizar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room: c.room, nombre: "", estado: "DISPONIBLE", jornada: document.getElementById('filtro-jornada-hoy').value }) });
-            cargarDatos(); 
-        }
-
-        async function tomarTurnoHoy(room, jornada) {
-            if(confirm(`¿Tomar la Room ${room} para HOY mismo?`)) {
-                await fetch(`${API_URL}/api/cuartos/actualizar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room: room, nombre: modeloActual, estado: "OCUPADA", jornada: jornada }) });
-                cargarDatos();
-            }
-        }
-
-        function generarHtmlGrilla(bd, jornada, modoVista) {
-            let html = '<div class="semana-scroll">';
-            nombreDias.forEach(dia => {
-                html += `<div class="dia-columna"><div class="dia-titulo">${dia}</div>`;
-                for(let i=1; i<=12; i++) {
-                    let raw = bd[dia]?.[jornada]?.[i.toString()] || "";
-                    let ocupante = raw.split("::")[0];
-                    let esPendiente = raw.includes("::PENDIENTE");
-                    
-                    let p = perfilesModelos[ocupante] || {};
-                    let esFija = p.cuarto_fijo == i;
-                    let txtFijo = esFija ? `R${i}: ` : "";
-
-                    if (ocupante === modeloActual) {
-                        if (esPendiente && esFaseAbierta && modoVista === "proxima") {
-                            html += `<div class="turno-bloque bg-neutro">TÚ (Espera)</div>`;
-                        } else if (esFija) {
-                            html += `<div class="turno-bloque bg-fijo" onclick="abrirModalLiberar('${dia}', '${jornada}', ${i})">${txtFijo}TÚ (FIJA)</div>`;
-                        } else {
-                            html += `<div class="turno-bloque bg-mine" onclick="abrirModalLiberar('${dia}', '${jornada}', ${i})">TÚ (Confirmada)</div>`;
-                        }
-                    } else if (ocupante) {
-                        if (esPendiente && esFaseAbierta && modoVista === "proxima") {
-                            html += `<div class="turno-bloque" style="background:#e0e0e0; color:#757575;">${ocupante.toUpperCase()} (Espera)</div>`;
-                        } else if (esFija) {
-                            html += `<div class="turno-bloque bg-fijo">${txtFijo}${ocupante.toUpperCase()}</div>`;
-                        } else {
-                            html += `<div class="turno-bloque bg-purple">${ocupante.toUpperCase()}</div>`;
-                        }
-                    } else {
-                        if(modoVista === "proxima") html += `<div class="turno-bloque" style="background:#e0e0e0; color:#999;">VACÍO</div>`;
-                        else html += `<div class="turno-bloque bg-green" onclick="agendarSemana('${dia}', '${jornada}', ${i})">➕ DISPONIBLE</div>`;
-                    }
-                }
-                html += `</div>`;
             });
-            return html + '</div>';
-        }
+        });
+    });
 
-        function renderizarSemana() {
-            const maestro = document.getElementById('contenedor-grillas-maestro'); maestro.innerHTML = '';
-            
-            let miPerfil = perfilesModelos[modeloActual] || {};
-            let perfilJor = miPerfil.jornada || baseJornadaActual;
+    const nuevos = avisos.filter(a => a.nuevo).length;
+    const punto = document.getElementById('punto-campana');
+    const campana = document.getElementById('btn-campana');
+    if (nuevos > 0) {
+        punto.textContent = nuevos;
+        punto.style.display = 'flex';
+        campana.classList.add('tiene-avisos');
+    } else {
+        punto.style.display = 'none';
+        campana.classList.remove('tiene-avisos');
+    }
+}
 
-            if (viendoProximaSemana) {
-                // LÓGICA ESPECIAL PARA SATELITES (Muestra el status room completo)
-                if (perfilJor === "Satelites") {
-                    maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Status Próxima Semana: MAÑANA</h3>`;
-                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, "Mañana", "proxima");
-                    maestro.innerHTML += `<h3 style="margin-top:25px; color:#333;">👉 Status Próxima Semana: TARDE</h3>`;
-                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, "Tarde", "proxima");
-                    maestro.innerHTML += `<h3 style="margin-top:25px; color:#333;">👉 Status Próxima Semana: NOCHE</h3>`;
-                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, "Noche", "proxima");
-                } 
-                else if (document.getElementById('chk-doble').checked) {
-                    maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Jornada Principal: ${jorPre1}</h3>`;
-                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre1, "proxima");
-                    maestro.innerHTML += `<h3 style="margin-top:25px; color:#c62828;">👉 Jornada Secundaria: ${jorPre2}</h3>`;
-                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre2, "proxima");
-                } else {
-                    maestro.innerHTML += `<h3 style="margin-top:10px; color:#333;">👉 Jornada Principal: ${jorPre1}</h3>`;
-                    maestro.innerHTML += generarHtmlGrilla(datosProximaSemana, jorPre1, "proxima");
-                }
-            } else {
-                let bdViendo = datosSemanaActual;
-                let jorSeleccionada = document.getElementById('sel-jornada-semana').value;
-                maestro.innerHTML += generarHtmlGrilla(bdViendo, jorSeleccionada, "actual");
+function abrirAvisos() {
+    const lista = document.getElementById('lista-avisos');
+    if (!avisos.length) {
+        lista.innerHTML = `<div class="aviso-item">No tienes avisos. Si quedas en lista de espera y se desocupa un cupo, aparecerá aquí.</div>`;
+    } else {
+        lista.innerHTML = avisos.map(a => `<div class="aviso-item">${a.texto}</div>`).join('');
+    }
+    document.getElementById('modal-avisos').style.display = 'flex';
+}
+
+function cerrarAvisos() {
+    localStorage.setItem('avisos_vistos', JSON.stringify(avisos.map(a => a.clave)));
+    cerrarModal('modal-avisos');
+    calcularAvisos();
+}
+
+/* ============================================================ LIBERAR */
+let turnoALiberar = null;
+
+function abrirModalLiberar(dia, jornada, room) {
+    turnoALiberar = { dia, jornada, room };
+    document.getElementById('texto-liberar').textContent = `Vas a liberar tu cupo del ${dia} en la jornada ${jornada} (cuarto ${room}).`;
+    document.getElementById('modal-liberar').style.display = 'flex';
+}
+
+async function confirmarLiberacion() {
+    const motivo = document.getElementById('motivo-liberacion').value.trim();
+    if (!motivo) return mostrarToast("Escribe el motivo.", "error");
+    try {
+        await fetch(`${API_URL}/api/semana/liberar`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre: modeloActual, dia: turnoALiberar.dia, jornada: turnoALiberar.jornada, room: turnoALiberar.room, motivo: motivo, foto_base64: "", tipo_semana: viendoProxima ? "proxima" : "actual" })
+        });
+        document.getElementById('motivo-liberacion').value = "";
+        cerrarModal('modal-liberar');
+        mostrarToast("Turno liberado.", "exito");
+        await cargarDatos();
+    } catch (e) {
+        mostrarToast("No se pudo liberar el turno.", "error");
+    }
+}
+
+/* ============================================================== DATOS */
+async function cargarDatos() {
+    try {
+        const rC = await fetch(`${API_URL}/api/cuartos?t=${Date.now()}`, { cache: 'no-store' });
+        const jC = await rC.json();
+        cuartosFisicos = Object.keys(jC.cuartos).map(k => ({
+            room: parseInt(k), nombre: jC.cuartos[k].nombre, estado: jC.cuartos[k].estado
+        })).sort((a, b) => a.room - b.room);
+
+        const tieneCuarto = cuartosFisicos.some(c => c.nombre === modeloActual && (c.estado === "OCUPADA" || c.estado === "DE SALIDA"));
+        document.getElementById('btn-entregar').style.display = tieneCuarto ? 'block' : 'none';
+
+        const rS = await fetch(`${API_URL}/api/semana?t=${Date.now()}`, { cache: 'no-store' });
+        const jS = await rS.json();
+        semanaActual = jS.semana_actual || {};
+        semanaProxima = jS.proxima_semana || {};
+        perfiles = jS.perfiles || {};
+        faltantes = jS.faltantes || {};
+        conteoOficiales = jS.conteo_oficiales || {};
+        cuposLibres = jS.cupos_libres || {};
+        seleccionesPrevias = jS.selecciones_previas || {};
+
+        if (!perfilCargado) {
+            const previa = seleccionesPrevias[modeloActual];
+            if (previa && previa.dias) {
+                JORNADAS.forEach(j => { diasMarcados[j] = (previa.dias[j] || []).slice(); });
+                if (previa.motivo) document.getElementById('pre-motivo').value = previa.motivo;
             }
+            perfilCargado = true;
         }
 
-        async function agendarSemana(dia, jornada, room) {
-            if(viendoProximaSemana) return;
-            for(let i=1; i<=12; i++) if(datosSemanaActual[dia][jornada][i.toString()] === modeloActual) datosSemanaActual[dia][jornada][i.toString()] = "";
-            datosSemanaActual[dia][jornada][room.toString()] = modeloActual;
-            renderizarSemana();
-            await fetch(`${API_URL}/api/semana/tomar_cupo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: modeloActual, dia: dia, jornada: jornada, room: room, tipo_semana: "actual" }) });
-        }
+        calcularAvisos();
+        renderizarTodo();
+    } catch (e) {
+        console.error("Error conectando:", e);
+        mostrarToast("Sin conexión con el servidor.", "error");
+    }
+}
 
-        let turnoALiberar = null;
-        function abrirModalLiberar(dia, jornada, room) {
-            turnoALiberar = { dia, jornada, room };
-            document.getElementById('texto-turno-liberar').textContent = `Liberar cupo: ${dia} (${jornada})`;
-            document.getElementById('modal-liberar').style.display = 'flex';
-        }
-        function cerrarModal() { document.getElementById('modal-liberar').style.display = 'none'; turnoALiberar = null; }
-
-        async function confirmarLiberacion() {
-            const motivo = document.getElementById('motivo-liberacion').value.trim();
-            if(!motivo) return alert("Escribe el motivo."); 
-            await fetch(`${API_URL}/api/semana/liberar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: modeloActual, dia: turnoALiberar.dia, jornada: turnoALiberar.jornada, room: turnoALiberar.room, motivo: motivo, foto_base64: "", tipo_semana: viendoProximaSemana ? "proxima" : "actual" }) });
-            mostrarToast("Turno liberado"); cerrarModal(); cargarDatos();
-        }
-
-        cargarDatos(); setInterval(cargarDatos, 60000); 
-    </script>
+// Se refresca cada minuto, pero NUNCA se pisan los cambios sin guardar:
+// los pendientes viven en `pendiente` y se repintan encima de lo que llegue.
+cargarDatos();
+setInterval(cargarDatos, 60000);
+</script>
 </body>
 </html>
