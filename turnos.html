@@ -6,25 +6,33 @@
     <title>Gestión de Turnos</title>
     <style>
         :root {
-            /* --- Paleta nueva: amarillo y negro --- */
+            /* --- Paleta: amarillo sobre negro --- */
             --amarillo: #FFD500;
             --amarillo-oscuro: #E6A700;
-            --negro: #101010;
-            --negro-suave: #1C1C1C;
-            --gris-linea: #E3E3E3;
-            --bg-body: #F5F5F5;
-            --card-bg: #FFFFFF;
+            --negro: #0B0B0B;
+            --negro-suave: #161616;
+            --negro-panel: #1C1C1C;
+            --gris-linea: #2E2E2E;
+            --bg-body: #0B0B0B;
+            --card-bg: #141414;
+
+            /* --- Texto sobre fondo oscuro --- */
+            --texto: #ECECEC;
+            --texto-tenue: #A8A8A8;
 
             /* --- Colores CON SIGNIFICADO: no se tocan --- */
             --verde: #4CAF50;      /* libre */
             --morado: #9C27B0;     /* ocupado por otra */
             --naranja: #FF9800;    /* tu turno confirmado */
             --fijo: #03A9F4;       /* tu cuarto fijo */
+            --satelite: #00BFA5;   /* modelo satélite */
             --rojo: #F44336;
             --espera: #FFFFFF;     /* lista de espera: BLANCO */
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: var(--bg-body); color: #222; padding-bottom: 110px; }
+        body { background-color: var(--bg-body); color: var(--texto); padding-bottom: 110px; }
+        textarea, input, select { background-color: #101010; color: var(--texto); }
+        textarea::placeholder { color: #6E6E6E; }
 
         /* ===================== CABECERA ===================== */
         header {
@@ -57,9 +65,10 @@
         }
 
         .container { max-width: 100%; padding: 12px; overflow-x: hidden; }
-        .card { background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .card { background: var(--card-bg); border: 1px solid #242424; border-radius: 10px; padding: 15px; margin-bottom: 18px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--amarillo); padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .fecha-hoy { font-weight: bold; color: #444; font-size: 0.95rem; }
+        .card-header h2 { color: var(--texto); }
+        .fecha-hoy { font-weight: bold; color: var(--texto); font-size: 0.95rem; }
         .dropdown-jornada { font-size: 0.85rem; font-weight: bold; color: var(--negro); border: 2px solid var(--negro); background: var(--amarillo); padding: 7px 10px; border-radius: 6px; outline: none; cursor: pointer; text-transform: uppercase; }
 
         .btn-amarillo { background-color: var(--amarillo); color: #000; border: 2px solid var(--amarillo-oscuro); padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.88rem; }
@@ -71,43 +80,43 @@
         .room-row:last-child { border-bottom: 1px solid var(--gris-linea); }
         .room-row > div { padding: 10px 5px; text-align: center; font-size: 0.85rem; border-right: 1px solid var(--gris-linea); }
         .r-num { font-weight: bold; background-color: var(--negro); color: var(--amarillo); }
-        .r-name { text-align: left !important; text-transform: uppercase; font-weight: bold; color: #444; }
+        .r-name { text-align: left !important; text-transform: uppercase; font-weight: bold; color: var(--texto); }
         .r-state { font-weight: bold; font-size: 0.75rem; }
-        .estado-ocupada { background-color: #FFEBEE; color: #C62828; }
-        .estado-salida { background-color: #FFF8E1; color: #F57F17; }
-        .estado-disponible { background-color: #E8F5E9; color: #2E7D32; cursor: pointer; }
-        .estado-neutro { background-color: #F5F5F5; color: #757575; }
+        .estado-ocupada { background-color: #3A1416; color: #FF8A80; }
+        .estado-salida { background-color: #3A2D0E; color: #FFD180; }
+        .estado-disponible { background-color: #13301A; color: #A5D6A7; cursor: pointer; }
+        .estado-neutro { background-color: #1E1E1E; color: #8A8A8A; }
         .estado-elegida { background-color: var(--amarillo); color: #000; cursor: pointer; }
 
         /* ===================== LEYENDA ===================== */
-        .leyenda { display: flex; gap: 12px; font-size: 0.72rem; justify-content: center; flex-wrap: wrap; background: var(--negro); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; }
+        .leyenda { display: flex; gap: 12px; font-size: 0.72rem; justify-content: center; flex-wrap: wrap; background: #000; border: 1px solid #2A2A2A; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; }
         .leyenda span { display: flex; align-items: center; gap: 5px; color: #fff; }
         .caja-color { width: 13px; height: 13px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.35); }
 
         /* ===================== PRE-AGENDAMIENTO ===================== */
-        #pre-agendamiento { background-color: #FFFDF0; padding: 15px; border-radius: 10px; margin-bottom: 18px; border: 2px solid var(--amarillo); }
-        #pre-agendamiento h3 { color: var(--negro); margin-bottom: 8px; font-size: 1.05rem; }
-        .aviso-doble { background: var(--negro); color: #fff; padding: 12px; border-radius: 8px; font-size: 0.88rem; line-height: 1.5; margin-bottom: 14px; }
+        #pre-agendamiento { background-color: #1A1708; padding: 15px; border-radius: 10px; margin-bottom: 18px; border: 2px solid var(--amarillo); }
+        #pre-agendamiento h3 { color: var(--amarillo); margin-bottom: 8px; font-size: 1.05rem; }
+        .aviso-doble { background: #000; border: 1px solid #333; color: var(--texto); padding: 12px; border-radius: 8px; font-size: 0.88rem; line-height: 1.5; margin-bottom: 14px; }
         .aviso-doble b { color: var(--amarillo); }
 
-        .bloque-jornada { border: 2px solid var(--gris-linea); border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fff; }
+        .bloque-jornada { border: 2px solid var(--gris-linea); border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #121212; }
         .bloque-jornada.oficial { border-color: var(--verde); }
         .bloque-jornada.espera { border-color: #BDBDBD; border-style: dashed; }
-        .titulo-jornada { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .titulo-jornada { font-weight: bold; font-size: 0.95rem; color: var(--texto); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
         .etiqueta-oficial { background: var(--verde); color: #fff; font-size: 0.68rem; padding: 3px 8px; border-radius: 20px; }
         .etiqueta-espera { background: #757575; color: #fff; font-size: 0.68rem; padding: 3px 8px; border-radius: 20px; }
-        .nota-jornada { font-size: 0.76rem; color: #666; margin-bottom: 10px; line-height: 1.45; }
-        .nota-espera { color: #B26A00; font-weight: bold; }
+        .nota-jornada { font-size: 0.76rem; color: var(--texto-tenue); margin-bottom: 10px; line-height: 1.45; }
+        .nota-espera { color: var(--amarillo); font-weight: bold; }
 
         .grid-dias { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 7px; }
         .dia-btn { padding: 9px 4px; text-align: center; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; user-select: none; transition: 0.15s; }
         .dia-asiste { background-color: var(--amarillo); color: #000; border: 2px solid var(--amarillo-oscuro); }
-        .dia-falta { background-color: #FAFAFA; color: #9E9E9E; border: 2px dashed #CFCFCF; }
+        .dia-falta { background-color: #1A1A1A; color: #8A8A8A; border: 2px dashed #3C3C3C; }
 
         /* ===================== GRILLAS SEMANALES ===================== */
-        .titulo-grilla { margin: 18px 0 8px; font-size: 1rem; font-weight: bold; color: #fff; background: var(--negro); padding: 8px 12px; border-radius: 6px; border-left: 6px solid var(--amarillo); }
+        .titulo-grilla { margin: 18px 0 8px; font-size: 1rem; font-weight: bold; color: #fff; background: #000; padding: 8px 12px; border-radius: 6px; border-left: 6px solid var(--amarillo); }
         .semana-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; }
-        .dia-columna { min-width: 142px; border: 1px solid var(--gris-linea); border-radius: 8px; overflow: hidden; background-color: #FAFAFA; }
+        .dia-columna { min-width: 142px; border: 1px solid var(--gris-linea); border-radius: 8px; overflow: hidden; background-color: #101010; }
         .dia-titulo { background-color: var(--negro); color: var(--amarillo); text-align: center; padding: 8px; font-weight: bold; font-size: 0.85rem; }
         .turno-bloque { padding: 8px 5px; border-bottom: 1px solid var(--gris-linea); font-size: 0.72rem; text-align: center; color: #fff; font-weight: bold; line-height: 1.25; }
 
@@ -115,7 +124,11 @@
         .bg-verde { background-color: var(--verde); cursor: pointer; }
         .bg-mia { background-color: var(--naranja); cursor: pointer; border: 2px solid #E65100; }
         .bg-fija { background-color: var(--fijo); cursor: pointer; border: 2px solid #0288D1; }
-        .bg-vacio { background-color: #E6E6E6; color: #8A8A8A; }
+        .bg-vacio { background-color: #1E1E1E; color: #7F7F7F; }
+        /* Las satélites trabajan desde su casa: color propio para no
+           confundirlas con las del estudio. Además llevan el icono 🛰, que
+           se lee aunque el color no se distinga bien en un móvil al sol. */
+        .bg-satelite { background-color: var(--satelite); color: #00211D; }
         .bg-elegida { background-color: var(--amarillo); color: #000; border: 2px solid var(--negro); cursor: pointer; }
         /* LISTA DE ESPERA = BLANCO */
         .bg-espera { background-color: var(--espera); color: #444; border: 2px dashed #9E9E9E; }
@@ -142,12 +155,16 @@
         #toast.error { background-color: var(--rojo); color: #fff; border-color: #B71C1C; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; text-align: center; border-top: 6px solid var(--amarillo); }
-        .modal-content h3 { margin-bottom: 12px; }
+        .modal-content { background: #161616; color: var(--texto); padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; text-align: center; border: 1px solid #2E2E2E; border-top: 6px solid var(--amarillo); }
+        .modal-content h3 { margin-bottom: 12px; color: var(--texto); }
         .btn-modal-rojo { background: var(--rojo); color: white; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
-        .btn-modal-gris { background: #E0E0E0; color: #333; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
+        .btn-modal-gris { background: #2C2C2C; color: var(--texto); border: 1px solid #3C3C3C; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
         .lista-avisos { text-align: left; max-height: 300px; overflow-y: auto; }
-        .aviso-item { background: #FFFDF0; border-left: 5px solid var(--amarillo); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.86rem; }
+        .aviso-item { background: #1A1708; border-left: 5px solid var(--amarillo); color: var(--texto); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.86rem; }
+
+        /* Selector de jornada del status ya publicado */
+        #barra-jornada-actual { display: none; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        #barra-jornada-actual .etiqueta { font-size: 0.8rem; color: var(--texto-tenue); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -197,6 +214,20 @@
                 <span><div class="caja-color" style="background:var(--naranja);"></div> Tu turno</span>
                 <span><div class="caja-color" style="background:var(--fijo);"></div> Fijo</span>
                 <span><div class="caja-color" style="background:#FFF;"></div> En espera</span>
+                <span><div class="caja-color" style="background:var(--satelite);"></div> 🛰 Satélite</span>
+            </div>
+
+            <!-- Selector de jornada del status YA PUBLICADO.
+                 Solo se ve en la semana en curso: en el pre-agendamiento se
+                 muestran las tres jornadas a la vez, porque ahí sí hay que
+                 elegir en cuáles marcar. -->
+            <div id="barra-jornada-actual">
+                <span class="etiqueta">Jornada que estás viendo:</span>
+                <select id="sel-jornada-actual" class="dropdown-jornada" onchange="cambiarJornadaActual()">
+                    <option value="Mañana">☀️ MAÑANA (7 AM - 1 PM)</option>
+                    <option value="Tarde">🌇 TARDE (1 PM - 8 PM)</option>
+                    <option value="Noche">🌙 NOCHE (8 PM - 7 AM)</option>
+                </select>
             </div>
 
             <!-- PANEL DE PRE-AGENDAMIENTO -->
@@ -287,6 +318,11 @@ let seleccionesPrevias = {};
 let viendoProxima = false;
 let perfilCargado = false;
 
+// Jornada que se muestra en el status YA PUBLICADO. Arranca en la que
+// corresponde a la hora actual: a las 10 AM se ve la mañana, a las 2 PM la
+// tarde. Se puede cambiar con el desplegable.
+let jornadaVista = "Mañana";
+
 // Días marcados por jornada. Por defecto NADA: está ausente.
 let diasMarcados = { "Mañana": [], "Tarde": [], "Noche": [] };
 
@@ -310,6 +346,8 @@ let jornadaDetectada = "Noche";
 if (horaH >= 7 && horaH < 13) jornadaDetectada = "Mañana";
 else if (horaH >= 13 && horaH < 20) jornadaDetectada = "Tarde";
 document.getElementById('filtro-jornada-hoy').value = jornadaDetectada;
+jornadaVista = jornadaDetectada;
+document.getElementById('sel-jornada-actual').value = jornadaDetectada;
 
 // Jueves y viernes completos; el sábado hasta las 11:59:59 AM.
 const faseAbierta = (diaIso === 4) || (diaIso === 5) || (diaIso === 6 && horaH < 12);
@@ -352,6 +390,14 @@ function jornadasOficiales() {
 }
 
 function esOficialEn(jornada) { return jornadasOficiales().includes(jornada); }
+
+/* Una satélite trabaja desde su casa: no ocupa cuarto del estudio por
+   derecho propio. Se pinta de otro color para no confundirla con las de
+   dentro, y lleva el icono 🛰 por si el color no se distingue bien en un
+   móvil a pleno sol. */
+function esSatelite(nombre) {
+    return (perfiles[nombre] || {}).jornada === "Satelites";
+}
 
 function textoPerfil() {
     const p = miPerfil();
@@ -543,12 +589,16 @@ function generarGrilla(bd, jornada, modo) {
                     html += `<div class="turno-bloque bg-mia" onclick="abrirModalLiberar('${dia}','${jornada}',${i})">TÚ</div>`;
                 }
             } else if (ocupante) {
+                const satelite = esSatelite(ocupante);
+                const nombreVisible = (satelite ? "🛰 " : "") + ocupante.toUpperCase();
                 if (enEspera) {
-                    html += `<div class="turno-bloque bg-espera-otra">${ocupante.toUpperCase()} (espera)</div>`;
+                    html += `<div class="turno-bloque bg-espera-otra">${nombreVisible} (espera)</div>`;
                 } else if (esFija) {
-                    html += `<div class="turno-bloque bg-fija">${prefijo}${ocupante.toUpperCase()}</div>`;
+                    html += `<div class="turno-bloque bg-fija">${prefijo}${nombreVisible}</div>`;
+                } else if (satelite) {
+                    html += `<div class="turno-bloque bg-satelite">${nombreVisible}</div>`;
                 } else {
-                    html += `<div class="turno-bloque bg-morado">${ocupante.toUpperCase()}</div>`;
+                    html += `<div class="turno-bloque bg-morado">${nombreVisible}</div>`;
                 }
             } else {
                 if (modo === "proxima") {
@@ -563,18 +613,36 @@ function generarGrilla(bd, jornada, modo) {
     return html + '</div>';
 }
 
+function cambiarJornadaActual() {
+    jornadaVista = document.getElementById('sel-jornada-actual').value;
+    renderizarGrillas();
+}
+
 function renderizarGrillas() {
     const cont = document.getElementById('grillas');
-    const bd = viendoProxima ? semanaProxima : semanaActual;
-    const modo = viendoProxima ? "proxima" : "actual";
+    const barra = document.getElementById('barra-jornada-actual');
 
-    let html = '';
-    JORNADAS.forEach(jornada => {
-        const etiqueta = esOficialEn(jornada) ? '✔ cupo asegurado' : '⏳ lista de espera';
-        html += `<div class="titulo-grilla">${jornada.toUpperCase()} <span style="font-weight:normal; font-size:0.8rem; color:#CFCFCF;">· ${etiqueta}</span></div>`;
-        html += generarGrilla(bd, jornada, modo);
-    });
-    cont.innerHTML = html;
+    if (viendoProxima) {
+        // PRE-AGENDAMIENTO: las tres jornadas, con su etiqueta. Aquí sí hace
+        // falta saber en cuáles tiene el cupo asegurado, porque está
+        // decidiendo dónde marcar.
+        barra.style.display = 'none';
+        let html = '';
+        JORNADAS.forEach(jornada => {
+            const etiqueta = esOficialEn(jornada) ? '✔ cupo asegurado' : '⏳ lista de espera';
+            html += `<div class="titulo-grilla">${jornada.toUpperCase()} <span style="font-weight:normal; font-size:0.8rem; color:#CFCFCF;">· ${etiqueta}</span></div>`;
+            html += generarGrilla(semanaProxima, jornada, "proxima");
+        });
+        cont.innerHTML = html;
+        return;
+    }
+
+    // SEMANA EN CURSO: una sola jornada, la de la hora actual, con el
+    // desplegable para mirar las otras dos. Sin etiqueta de "cupo asegurado":
+    // esta semana ya está publicada, lo que hay es lo que hay.
+    barra.style.display = 'flex';
+    cont.innerHTML = `<div class="titulo-grilla">${jornadaVista.toUpperCase()}</div>`
+                   + generarGrilla(semanaActual, jornadaVista, "actual");
 }
 
 function marcarCupoActual(dia, jornada, room) {
